@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item android:id="@+id/menu_selectstation"
+        android:title="@string/menu_selectstation"/>
     <item android:id="@+id/menu_set"
         android:title="@string/menu_set" />
 </menu>

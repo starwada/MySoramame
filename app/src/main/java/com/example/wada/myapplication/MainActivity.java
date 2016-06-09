@@ -78,6 +78,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.menu_set:
                 Setting();
                 break;
+            case R.id.menu_selectstation:
+                SelectStation();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -100,9 +103,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // 測定局選択アクティビティ
-    private void Setting(){
+    private void SelectStation(){
         // リスト用アクティビティ
         Intent intent = new Intent(MainActivity.this, SelectStationActivity.class);
+        startActivity(intent);
+    }
+
+    // 設定アクティビティ
+    private void Setting(){
+        // リスト用アクティビティ
+        Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
         startActivity(intent);
     }
 
