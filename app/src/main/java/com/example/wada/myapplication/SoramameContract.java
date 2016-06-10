@@ -25,5 +25,6 @@ public final class SoramameContract {
         public static final String COLUMN_NAME_PM25 = "PM25";
         public static final String COLUMN_NAME_WD = "WD";
         public static final String COLUMN_NAME_SEL = "selected";
+        public static final String COLUMN_NAME_IND = "index";
     }
 }

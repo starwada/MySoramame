@@ -13,6 +13,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,6 +28,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Locale;
 
 // まず、表示する測定局の番号リストを保持させる。
@@ -155,6 +157,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //
+    private int updateDBAtStation(int code){
+        int rc = 0;
+
+        SoramameSQLHelper mDbHelper = new SoramameSQLHelper(MainActivity.this);
+        try {
+            SQLiteDatabase mDb = mDbHelper.getWritableDatabase();
+            if( !mDb.isOpen() ){ return -1; }
+
+            // 消すんじゃ無かった、フラグを未選択にするだけ。
+            String strWhereCause;
+            ContentValues values = new ContentValues();
+            strWhereCause = SoramameContract.FeedEntry.COLUMN_NAME_CODE + " = ?";
+            values.put(SoramameContract.FeedEntry.COLUMN_NAME_SEL, 0);
+            String strWhereArg[] = { String.valueOf(code)};
+            mDb.update(SoramameContract.FeedEntry.TABLE_NAME, values, strWhereCause, strWhereArg);
+            mDb.close();
+        }catch (SQLiteException e){
+
+        }
+
+        return rc;
+    }
+
+    //
     private class SoraDesc extends AsyncTask<Void, Void, Void>
     {
         ProgressDialog mProgressDialog;
@@ -232,6 +258,46 @@ public class MainActivity extends AppCompatActivity {
     //        mRecyclerView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(10), true));
                 mRecyclerView.setItemAnimator(new DefaultItemAnimator());
                 mRecyclerView.setAdapter(mAdapter);
+
+                // 以下タッチヘルパー
+                // リサイクラービューにて要素を入れ替えたり、スワイプで削除したりできる。
+                // mListやDBと同期させないと整合が取れないが。今のところ。
+                ItemTouchHelper itemDecor = new ItemTouchHelper(
+                        new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+                                ItemTouchHelper.RIGHT) {
+                            @Override
+                            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                                final int fromPos = viewHolder.getAdapterPosition();
+                                final int toPos = target.getAdapterPosition();
+                                // アダプターでの順番を入れ替えているが元のmListも入れ替えないと。
+                                // 以下の様なやりかたではだめはよう。たぶん簡単ではないので実装していないのだろう。
+//                                mList.set(toPos, mList.get(fromPos));
+                                // 以下はめんどくさいやりかただけど、仕方ないか。
+                                // DBに表示用のインデックスを追加する。
+                                if (fromPos < toPos) {
+                                    for (int i = fromPos; i < toPos; i++) {
+                                        Collections.swap(mList, i, i + 1);
+                                    }
+                                } else {
+                                    for (int i = fromPos; i > toPos; i--) {
+                                        Collections.swap(mList, i, i - 1);
+                                    }
+                                }
+                                mAdapter.notifyItemMoved(fromPos, toPos);
+                                return true;
+                            }
+
+                            @Override
+                            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                                final int fromPos = viewHolder.getAdapterPosition();
+                                // ここは、mListの内容も削除するが当然DBも扱わないと。
+                                // mListから削除するまえにDBのフラグを未選択にする。
+                                updateDBAtStation(mList.get(fromPos).getMstCode());
+                                mList.remove(fromPos);
+                                mAdapter.notifyItemRemoved(fromPos);
+                            }
+                        });
+                itemDecor.attachToRecyclerView(mRecyclerView);
 
                 ArrayList<String> dataList = new ArrayList<String>();
                 dataList.add("PM2.5");
