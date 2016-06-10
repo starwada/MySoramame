@@ -12,7 +12,7 @@
         android:id="@+id/comment"
         android:layout_below="@+id/toolbar"/>
     <Spinner
-        android:layout_width="200sp"
+        android:layout_width="100sp"
         android:layout_height="wrap_content"
         android:id="@+id/spinner2"
         android:layout_below="@+id/toolbar"
