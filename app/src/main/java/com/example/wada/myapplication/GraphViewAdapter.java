@@ -1,6 +1,8 @@
 package com.example.wada.myapplication;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -73,6 +75,18 @@ public class GraphViewAdapter extends RecyclerView.Adapter<GraphViewAdapter.View
         holder.soramax.setText(holder.soragraph.getMaxString());
         holder.soraave.setText(holder.soragraph.getAveString());
         holder.stationname.setText(data.getMstName() + ":" + String.valueOf(data.getSelIndex()));
+
+        holder.stationname.setOnLongClickListener(new View.OnLongClickListener(){
+            @Override
+            public boolean onLongClick(View v) {
+                Soramame data = mList.get(position);
+                Uri location = Uri.parse(data.getAddress());
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, location);
+
+                mContext.startActivity(mapIntent);
+                return false;
+            }
+        });
 
         TouchEvent( holder, position);
 

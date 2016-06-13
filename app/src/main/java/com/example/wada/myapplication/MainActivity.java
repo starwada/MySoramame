@@ -104,6 +104,12 @@ public class MainActivity extends AppCompatActivity {
         super.onRestart();
     }
 
+    @Override
+    protected void onPause() {
+        updateDBIndex();
+        super.onPause();
+    }
+
     // 測定局選択アクティビティ
     private void SelectStation(){
         // リスト用アクティビティ
