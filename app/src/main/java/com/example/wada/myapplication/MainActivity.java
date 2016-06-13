@@ -127,8 +127,10 @@ public class MainActivity extends AppCompatActivity {
             SQLiteDatabase mDb = mDbHelper.getReadableDatabase();
             if( !mDb.isOpen() ){ return -1; }
 
+            // 本来ここでは、COLUMN_NAME_INDでのソートのみでOK
             Cursor c = mDb.query(SoramameContract.FeedEntry.TABLE_NAME, null,
-                    SoramameContract.FeedEntry.COLUMN_NAME_SEL + " = 1",  null, null, null, null);
+                    SoramameContract.FeedEntry.COLUMN_NAME_SEL + " = 1",  null, null, null,
+                    SoramameContract.FeedEntry.COLUMN_NAME_IND + " asc");
             if( c.getCount() > 0 )
             {
                 if( c.moveToFirst() ) {
@@ -141,6 +143,9 @@ public class MainActivity extends AppCompatActivity {
                                 c.getInt(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_CODE)),
                                 c.getString(c.getColumnIndexOrThrow( SoramameContract.FeedEntry.COLUMN_NAME_STATION)),
                                 c.getString(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_ADDRESS)));
+                        mame.setSelected(1);
+                        // 以下はデバッグでインデックスの値を見たいため
+                        mame.setSelIndex(c.getInt(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_IND)));
 
                         mList.add(mame);
                         if( !c.moveToNext()){ break; }
@@ -172,6 +177,35 @@ public class MainActivity extends AppCompatActivity {
             values.put(SoramameContract.FeedEntry.COLUMN_NAME_SEL, 0);
             String strWhereArg[] = { String.valueOf(code)};
             mDb.update(SoramameContract.FeedEntry.TABLE_NAME, values, strWhereCause, strWhereArg);
+            mDb.close();
+        }catch (SQLiteException e){
+
+        }
+
+        return rc;
+    }
+
+    // mListの選択順をDBに反映させる
+    private int updateDBIndex(){
+        int rc = 0;
+
+        SoramameSQLHelper mDbHelper = new SoramameSQLHelper(MainActivity.this);
+        try {
+            SQLiteDatabase mDb = mDbHelper.getWritableDatabase();
+            if( !mDb.isOpen() ){ return -1; }
+
+            int nIndex = 0;
+            for( Soramame data : mList) {
+                if(data.isSelected()) {
+                    // 消すんじゃ無かった、フラグを未選択にするだけ。
+                    String strWhereCause;
+                    ContentValues values = new ContentValues();
+                    strWhereCause = SoramameContract.FeedEntry.COLUMN_NAME_CODE + " = ?";
+                    values.put(SoramameContract.FeedEntry.COLUMN_NAME_IND, nIndex++);
+                    String strWhereArg[] = {String.valueOf(data.getMstCode())};
+                    mDb.update(SoramameContract.FeedEntry.TABLE_NAME, values, strWhereCause, strWhereArg);
+                }
+            }
             mDb.close();
         }catch (SQLiteException e){
 
@@ -283,6 +317,7 @@ public class MainActivity extends AppCompatActivity {
                                         Collections.swap(mList, i, i - 1);
                                     }
                                 }
+                                updateDBIndex();
                                 mAdapter.notifyItemMoved(fromPos, toPos);
                                 return true;
                             }

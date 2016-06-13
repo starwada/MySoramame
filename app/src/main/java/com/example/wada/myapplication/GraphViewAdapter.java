@@ -72,7 +72,7 @@ public class GraphViewAdapter extends RecyclerView.Adapter<GraphViewAdapter.View
         holder.soragraph.setDispDay(mDay);
         holder.soramax.setText(holder.soragraph.getMaxString());
         holder.soraave.setText(holder.soragraph.getAveString());
-        holder.stationname.setText(data.getMstName());
+        holder.stationname.setText(data.getMstName() + ":" + String.valueOf(data.getSelIndex()));
 
         TouchEvent( holder, position);
 

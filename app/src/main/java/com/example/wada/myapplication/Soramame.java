@@ -185,6 +185,8 @@ public class Soramame implements Parcelable{
     private boolean m_Select;                                   // 選択フラグ true 表示対象/false 非表示
     private boolean mEdit;                                          // 編集フラグ true 編集した/false 未編集
 
+    private int mSelIndex;
+
     @Override
     public int describeContents(){
         return 0;
@@ -221,6 +223,7 @@ public class Soramame implements Parcelable{
         m_aData  = null;
         m_Select = false;
         mEdit = false;
+        mSelIndex = 0;
     }
 
     Soramame(int nCode, String strName, String strAddress)
@@ -244,6 +247,8 @@ public class Soramame implements Parcelable{
     }
     public boolean isSelected(){ return m_Select; }
     public boolean isEdit(){ return  mEdit; }
+
+    public int getSelIndex(){ return mSelIndex; }
 
     // Set
     public void setData(String strYear, String strMonth, String strDay, String strHour, String strOX, String strPM25, String strWD, String strWS)
@@ -312,6 +317,7 @@ public class Soramame implements Parcelable{
     public void setEdit(boolean flag){
         mEdit = flag;
     }
+    public void setSelIndex(int index){ mSelIndex = index; }
 
     public void clearData(){
         if( m_aData != null){

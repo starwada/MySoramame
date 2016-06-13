@@ -383,6 +383,7 @@ public class SelectStationActivity extends Activity {
 
                                     // 測定局DBに保存
                                     ContentValues values = new ContentValues();
+                                    values.put(SoramameContract.FeedEntry.COLUMN_NAME_IND, cnt);
                                     values.put(SoramameContract.FeedEntry.COLUMN_NAME_STATION, data.get(1).text());
                                     values.put(SoramameContract.FeedEntry.COLUMN_NAME_CODE, Integer.valueOf(data.get(0).text()));
                                     values.put(SoramameContract.FeedEntry.COLUMN_NAME_ADDRESS, data.get(2).text());

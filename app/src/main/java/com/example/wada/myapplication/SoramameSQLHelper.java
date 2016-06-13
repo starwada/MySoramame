@@ -17,6 +17,7 @@ public class SoramameSQLHelper  extends SQLiteOpenHelper{
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + SoramameContract.FeedEntry.TABLE_NAME + " (" +
                     SoramameContract.FeedEntry._ID + " INTEGER PRIMARY KEY," +
+                    SoramameContract.FeedEntry.COLUMN_NAME_IND + " INTEGER" + COMMA_SEP +
                     SoramameContract.FeedEntry.COLUMN_NAME_STATION + TEXT_TYPE + COMMA_SEP +
                     SoramameContract.FeedEntry.COLUMN_NAME_CODE + " INTEGER" + COMMA_SEP +
                     SoramameContract.FeedEntry.COLUMN_NAME_ADDRESS + TEXT_TYPE + COMMA_SEP +
