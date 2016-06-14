@@ -339,8 +339,14 @@ public class Soramame implements Parcelable{
     public boolean isLoaded(String strYear, String strMon, String strDay, String strHour){
         // 要素が無ければfalse
         if(getSize() < 1){ return false; }
+
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.set(Integer.valueOf(strYear), Integer.valueOf(strMon), Integer.valueOf(strDay), Integer.valueOf(strHour), 0);
+
+        boolean loaded = false;
+        if( m_aData.get(0).getDate().before(cal) ){ loaded = true; }
         
-        return false;
+        return loaded;
     }
 
     public String getStationInfo()
