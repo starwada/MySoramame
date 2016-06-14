@@ -74,16 +74,22 @@ public class GraphViewAdapter extends RecyclerView.Adapter<GraphViewAdapter.View
         holder.soragraph.setDispDay(mDay);
         holder.soramax.setText(holder.soragraph.getMaxString());
         holder.soraave.setText(holder.soragraph.getAveString());
-        holder.stationname.setText(data.getMstName() + ":" + String.valueOf(data.getSelIndex()));
+        holder.stationname.setText(data.getMstName());
+        // 以下はリストのインデックス確認のデバッグ用
+//        holder.stationname.setText(data.getMstName() + ":" + String.valueOf(data.getSelIndex()));
 
+        // 測定局名のロングタップでマップ起動（あれば）
         holder.stationname.setOnLongClickListener(new View.OnLongClickListener(){
             @Override
             public boolean onLongClick(View v) {
                 Soramame data = mList.get(position);
-                Uri location = Uri.parse(data.getAddress());
+                Uri location = Uri.parse("geo:0,0?q=" + Uri.encode(data.getAddress()));
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, location);
+                mapIntent.setPackage("com.google.android.apps.maps");
 
-                mContext.startActivity(mapIntent);
+                if (mapIntent.resolveActivity(mContext.getPackageManager()) != null) {
+                    mContext.startActivity(mapIntent);
+                }
                 return false;
             }
         });

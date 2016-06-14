@@ -29,6 +29,8 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 
 // まず、表示する測定局の番号リストを保持させる。
@@ -89,6 +91,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
+        // ここで、データの更新をチェックする
+//        GregorianCalendar now = new GregorianCalendar(Locale.JAPAN);
+
         // DBから選択された測定局を取得し、そのデータを問い合わせる
         getSelectedStation();
 
@@ -112,14 +117,12 @@ public class MainActivity extends AppCompatActivity {
 
     // 測定局選択アクティビティ
     private void SelectStation(){
-        // リスト用アクティビティ
         Intent intent = new Intent(MainActivity.this, SelectStationActivity.class);
         startActivity(intent);
     }
 
     // 設定アクティビティ
     private void Setting(){
-        // リスト用アクティビティ
         Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
         startActivity(intent);
     }
@@ -194,6 +197,8 @@ public class MainActivity extends AppCompatActivity {
     // mListの選択順をDBに反映させる
     private int updateDBIndex(){
         int rc = 0;
+
+        if( mList == null){ return rc; }
 
         SoramameSQLHelper mDbHelper = new SoramameSQLHelper(MainActivity.this);
         try {
