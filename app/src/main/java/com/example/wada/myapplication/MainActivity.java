@@ -224,7 +224,8 @@ public class MainActivity extends AppCompatActivity {
         return rc;
     }
 
-    //
+    // これを呼ばれる前にmListが空になることを想定した作りとなっている。
+    // 空でなければ、新規データのみ取得するように修正する。
     private class SoraDesc extends AsyncTask<Void, Void, Void>
     {
         ProgressDialog mProgressDialog;
@@ -266,6 +267,11 @@ public class MainActivity extends AppCompatActivity {
                     Element body = sora.body();
                     Elements tables = body.getElementsByAttributeValue("align", "right");
 
+                    // SoramameにisLoaded(西暦、月、日、時間)を実装する。
+                    // 内部データが無い場合はfalse。
+                    // 内部データの先頭要素にて判定する。入力より古いとtrue、同じか新しいとfalse。新しいは無いと思うが。
+                    // 新規データをテンポラリ配列に保持しておき、判定でfalseになったら、元データを取り込み、入れ替える。
+                    // Collections.copy()
                     for (Element ta : tables) {
                         Elements data = ta.getElementsByTag("td");
                         // 0 西暦/1 月/2 日/3 時間

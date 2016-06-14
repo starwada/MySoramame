@@ -333,6 +333,16 @@ public class Soramame implements Parcelable{
         m_aData.add(data);
     }
 
+    // 内部データがすでに読み込まれているかを判定する。
+    // 内部データが空ならfalse
+    // 内部データの先頭要素にて判定する。
+    public boolean isLoaded(String strYear, String strMon, String strDay, String strHour){
+        // 要素が無ければfalse
+        if(getSize() < 1){ return false; }
+        
+        return false;
+    }
+
     public String getStationInfo()
     {
         return m_Station.getString();

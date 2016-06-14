@@ -80,9 +80,11 @@ public class SelectStationActivity extends Activity {
 
                 mPref = position + 1;
 
-                // 測定局の選択状態をDBに保存
+                // 選択都道府県での測定局データを取得するまえに、
+                // 現在の選択状態をDBに保存
                 setSelectedStation();
 
+                // 選択都道府県での測定局データ取得
                 new SoraStation().execute();
             }
 
