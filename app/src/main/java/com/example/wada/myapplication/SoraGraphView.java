@@ -5,7 +5,9 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
@@ -44,6 +46,8 @@ public class SoraGraphView extends View {
     private Paint mBack;
     private Paint mLine ;
     private Paint mDot ;
+    private Paint mHourLine;
+    private Path mHourPath;
     private RectF mRect;
 //    private float[] mVert;
 
@@ -127,6 +131,13 @@ public class SoraGraphView extends View {
             mOX = new Paint();
             mOX.setColor(Color.argb(75, 255, 0, 0));
             mOX.setStrokeWidth(2.4f);
+            // 時間線
+            mHourLine = new Paint();
+            mHourLine.setColor(Color.argb(75, 0, 0, 0));
+            mHourLine.setStyle(Paint.Style.STROKE);
+            mHourLine.setStrokeWidth(1);
+            mHourLine.setPathEffect(new DashPathEffect(new float[]{ 5.0f, 5.0f }, 0));
+            mHourPath = new Path();
         }
         catch(java.lang.NullPointerException e){
             e.getMessage();
@@ -359,6 +370,9 @@ public class SoraGraphView extends View {
             }
         }
 
+        // Pathは内部でパスを保持しているので、リセットが必要。
+        mHourPath.reset();
+
         // グラフ
         if(mSoramame.getSize() > 0){
             ArrayList<Soramame.SoramameData> list = mSoramame.getData();
@@ -415,6 +429,11 @@ public class SoraGraphView extends View {
                 // 時間軸描画
                 if( data.getDate().get(Calendar.HOUR_OF_DAY) == 0 ){
                     canvas.drawLine(x, paddingTop, x, contentHeight + paddingTop, mLine);
+                }
+                else if(data.getDate().get(Calendar.HOUR_OF_DAY) % 6 == 0){
+                    mHourPath.moveTo(x, paddingTop);
+                    mHourPath.lineTo(x, contentHeight + paddingTop);
+                    canvas.drawPath(mHourPath, mHourLine);
                 }
                 if( data.getDate().get(Calendar.HOUR_OF_DAY) == 1 ){
                     // 日付描画
