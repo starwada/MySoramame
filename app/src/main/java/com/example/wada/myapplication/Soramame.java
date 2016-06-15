@@ -362,12 +362,21 @@ public class Soramame implements Parcelable{
 
     public int getSize()
     {
-        return m_aData.size();
+        int size = 0;
+        if( m_aData != null){ size = m_aData.size(); }
+        return size;
     }
 
     public ArrayList<SoramameData> getData()
     {
         return m_aData;
+    }
+
+    public void addAll(int index, ArrayList<Soramame.SoramameData> list){
+        if(m_aData == null){
+            m_aData = new ArrayList<SoramameData>();
+        }
+        m_aData.addAll(index, list);
     }
 
     // 風向文字列->インデックス変換

@@ -142,10 +142,9 @@ public class MainActivity extends AppCompatActivity {
             if( c.getCount() > 0 )
             {
                 if( c.moveToFirst() ) {
-                    if(mList != null) {
-                        mList.clear();
+                    if(mList == null) {
+                        mList = new ArrayList<Soramame>();
                     }
-                    mList = new ArrayList<Soramame>();
                     while (true) {
                         Soramame mame = new Soramame(
                                 c.getInt(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_CODE)),
@@ -155,7 +154,15 @@ public class MainActivity extends AppCompatActivity {
                         // 以下はデバッグでインデックスの値を見たいため
                         mame.setSelIndex(c.getInt(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_IND)));
 
-                        mList.add(mame);
+                        // mListを使いまわしするので、重複登録はしない。
+                        boolean flag = true;
+                        for( Soramame ent : mList) {
+                            if( ent.getMstCode().equals(mame.getMstCode())){
+                                flag = false;
+                                break;
+                            }
+                        }
+                        if(flag){ mList.add(mame); }
                         if( !c.moveToNext()){ break; }
                     }
                 }
@@ -249,6 +256,7 @@ public class MainActivity extends AppCompatActivity {
                 if( mList.isEmpty()){ return null; }
 
                 for( Soramame soramame : mList) {
+                    // 現在時間と測定最新時間を比べるともっと早くなる。
                     // 本来、ここに測定局コードを指定する。
                     String url = String.format(Locale.ENGLISH, "%s%s%d", SORABASEURL, SORADATAURL, soramame.getMstCode());
                     Document doc = Jsoup.connect(url).get();
@@ -272,14 +280,25 @@ public class MainActivity extends AppCompatActivity {
                     // 内部データの先頭要素にて判定する。入力より古いとtrue、同じか新しいとfalse。新しいは無いと思うが。
                     // 新規データをテンポラリ配列に保持しておき、判定でfalseになったら、元データを取り込み、入れ替える。
                     // Collections.copy()
+                    count = 0;
+                    Soramame aData = new Soramame();
                     for (Element ta : tables) {
                         Elements data = ta.getElementsByTag("td");
                         // 0 西暦/1 月/2 日/3 時間
                         // 4 SO2/5 NO/6 NO2/7 NOX/8 CO/9 OX/10 NMHC/11 CH4/12 THC/13 SPM/14 PM2.5/15 SP/16 WD/17 WS
 
-                        soramame.setData(data.get(0).text(), data.get(1).text(), data.get(2).text(), data.get(3).text(),
+                        if(soramame.isLoaded(data.get(0).text(), data.get(1).text(), data.get(2).text(), data.get(3).text())){ break; }
+                        aData.setData(data.get(0).text(), data.get(1).text(), data.get(2).text(), data.get(3).text(),
                                 data.get(9).text(), data.get(14).text(), data.get(16).text(), data.get(17).text());
                         count++;
+                    }
+                    // countにて新しいデータが無い場合はスルー
+                    if(count > 0) {
+                        if (soramame.getSize() > 0) {
+                            aData.addAll(aData.getSize(), soramame.getData());
+                            soramame.getData().clear();
+                        }
+                        soramame.addAll(0, aData.getData());
                     }
                 }
             }
@@ -293,6 +312,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void result)
         {
+            // ここも飛ばせるが・・・
+            // 以下ではだめ mList全てが最新ならスルー
+            //if(count == 0){mProgressDialog.dismiss();return;}
+
             if(mList != null)
             {
                 mRecyclerView = (RecyclerView) findViewById(R.id.graphview);
