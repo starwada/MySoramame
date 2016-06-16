@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">そらみてごらん！</string>
+    <string name="action_share">Share</string>
+    <string name="send_to">Share</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_select_station">My Station</string>
     <string name="Title">都道府県</string>

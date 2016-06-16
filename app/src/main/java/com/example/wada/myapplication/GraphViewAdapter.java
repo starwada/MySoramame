@@ -3,6 +3,7 @@ package com.example.wada.myapplication;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -110,6 +111,19 @@ public class GraphViewAdapter extends RecyclerView.Adapter<GraphViewAdapter.View
                     TouchEvent( holder, position);
                 }
                 return true;
+            }
+        });
+
+        holder.soragraph.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                holder.soragraph.Capture();
+                Intent shareIntent = new Intent();
+                shareIntent.setAction(Intent.ACTION_SEND);
+                shareIntent.putExtra(Intent.EXTRA_STREAM, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/capture.jpeg");
+                shareIntent.setType("image/jpeg");
+                mContext.startActivity(Intent.createChooser(shareIntent, mContext.getResources().getText(R.string.send_to)));
+                return false;
             }
         });
     }

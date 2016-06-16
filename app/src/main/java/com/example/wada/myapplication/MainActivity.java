@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ShareActionProvider;
 import android.widget.Spinner;
 
 import org.jsoup.Jsoup;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private ShareActionProvider mShareActionProvider;
 
     private static final String SORAPREFFILE = "SoraPrefFile";
 
@@ -81,6 +83,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
+
+        // Locate MenuItem with ShareActionProvider
+        MenuItem item = menu.findItem(R.id.menu_item_share);
+        // Fetch and store ShareActionProvider
+        mShareActionProvider = (ShareActionProvider) item.getActionProvider();
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -131,6 +138,13 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
 
         super.onPause();
+    }
+
+    // Call to update the share intent
+    private void setShareIntent(Intent shareIntent) {
+        if (mShareActionProvider != null) {
+            mShareActionProvider.setShareIntent(shareIntent);
+        }
     }
 
     // 表示データ種別および日数のスピナー設定
