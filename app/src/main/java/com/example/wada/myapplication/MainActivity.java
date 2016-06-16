@@ -2,7 +2,9 @@ package com.example.wada.myapplication;
 
 import android.app.ProgressDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -53,18 +55,27 @@ public class MainActivity extends AppCompatActivity {
     String m_strMstURL;     // 測定局のURL
 //    private Soramame mSoramame;
     ArrayList<Soramame> mList;
+    private Spinner mDataType;
+    private Spinner mDay;
+    int mCurrentType = 0;       // 表示データ種別スピナー
+    int mCurrentDay = 3;        // 表示日数スピナー
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(myToolbar);
+        try {
+            Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(myToolbar);
 
-        getSupportActionBar().setTitle(R.string.app_name);
-        getSupportActionBar().setIcon(R.drawable.ic_action_name);
+            getSupportActionBar().setTitle(R.string.app_name);
+            getSupportActionBar().setIcon(R.drawable.ic_action_name);
 
+        }
+        catch(java.lang.NullPointerException e){
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -110,8 +121,78 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
+        // 表示測定局をDBに保持
         updateDBIndex();
+        // スピナーのインデックスを保持
+        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt("CurrentType", mCurrentType);
+        editor.putInt("CurrentDay", mCurrentDay);
+        editor.apply();
+
         super.onPause();
+    }
+
+    // 表示データ種別および日数のスピナー設定
+    private void SetSpinner(){
+        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        mCurrentType = sharedPref.getInt("CurrentType", 0);
+        mCurrentDay = sharedPref.getInt("CurrentDay", 3);
+
+        ArrayList<String> dataList = new ArrayList<String>();
+        dataList.add("PM2.5");
+        dataList.add("OX(光化学オキシダント)");
+        dataList.add("WS(風速)");
+        ArrayAdapter<String> pref = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, dataList);
+        pref.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // スピナーリスト設定
+        mDataType = (Spinner)findViewById(R.id.spinner2);
+        mDataType.setAdapter(pref);
+        mDataType.setSelection(mCurrentType);
+        mDataType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if( mAdapter != null) {
+                    GraphViewAdapter adapter = (GraphViewAdapter) mAdapter;
+                    adapter.SetMode(position);
+                    mAdapter.notifyDataSetChanged();
+                }
+                mCurrentType = position;
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        ArrayList<String> dayList = new ArrayList<String>();
+        dayList.add("１日");
+        dayList.add("２日");
+        dayList.add("３日");
+        dayList.add("４日");
+        dayList.add("５日");
+        dayList.add("６日");
+        dayList.add("７日");
+        dayList.add("最大");
+        ArrayAdapter<String> day = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, dayList);
+        day.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // スピナーリスト設定
+        mDay = (Spinner)findViewById(R.id.spinnerDay);
+        mDay.setAdapter(day);
+        mDay.setSelection(mCurrentDay-1);
+        mDay.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if( mAdapter != null) {
+                    GraphViewAdapter adapter = (GraphViewAdapter) mAdapter;
+                    adapter.SetDispDay(position);
+                    mAdapter.notifyDataSetChanged();
+                }
+                mCurrentDay = (position+1 == 8 ? 0 : position+1);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
     }
 
     // 測定局選択アクティビティ
@@ -332,6 +413,8 @@ public class MainActivity extends AppCompatActivity {
                 mRecyclerView.setItemAnimator(new DefaultItemAnimator());
                 mRecyclerView.setAdapter(mAdapter);
 
+                SetSpinner();
+
                 // 以下タッチヘルパー
                 // リサイクラービューにて要素を入れ替えたり、スワイプで削除したりできる。
                 // mListやDBと同期させないと整合が取れないが。今のところ。
@@ -372,55 +455,6 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
                 itemDecor.attachToRecyclerView(mRecyclerView);
-
-                ArrayList<String> dataList = new ArrayList<String>();
-                dataList.add("PM2.5");
-                dataList.add("OX(光化学オキシダント)");
-                dataList.add("WS(風速)");
-                ArrayAdapter<String> pref = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, dataList);
-                pref.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                // スピナーリスト設定
-                Spinner datatype = (Spinner)findViewById(R.id.spinner2);
-                datatype.setAdapter(pref);
-                datatype.setSelection(0);
-                datatype.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        GraphViewAdapter adapter = (GraphViewAdapter)mAdapter;
-                        adapter.SetMode(position);
-                        mAdapter.notifyDataSetChanged();
-                    }
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-                    }
-                });
-
-                ArrayList<String> dayList = new ArrayList<String>();
-                dayList.add("１日");
-                dayList.add("２日");
-                dayList.add("３日");
-                dayList.add("４日");
-                dayList.add("５日");
-                dayList.add("６日");
-                dayList.add("７日");
-                dayList.add("最大");
-                ArrayAdapter<String> day = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, dayList);
-                day.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                // スピナーリスト設定
-                Spinner dayspinner = (Spinner)findViewById(R.id.spinnerDay);
-                dayspinner.setAdapter(day);
-                dayspinner.setSelection(2);
-                dayspinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        GraphViewAdapter adapter = (GraphViewAdapter)mAdapter;
-                        adapter.SetDispDay(position);
-                        mAdapter.notifyDataSetChanged();
-                    }
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-                    }
-                });
             }
 
             mProgressDialog.dismiss();

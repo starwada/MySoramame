@@ -48,6 +48,7 @@ public class SoraGraphView extends View {
     private Paint mDot ;
     private Paint mHourLine;
     private Path mHourPath;
+    private float mHourTextWidth[] = new float[4];
     private RectF mRect;
 //    private float[] mVert;
 
@@ -138,6 +139,8 @@ public class SoraGraphView extends View {
             mHourLine.setStrokeWidth(1);
             mHourLine.setPathEffect(new DashPathEffect(new float[]{ 5.0f, 5.0f }, 0));
             mHourPath = new Path();
+            mHourTextWidth[0] = mHourTextWidth[1] = 0.0f;
+            mHourTextWidth[2] = mHourTextWidth[3] = 0.0f;
         }
         catch(java.lang.NullPointerException e){
             e.getMessage();
@@ -148,6 +151,11 @@ public class SoraGraphView extends View {
         mTextPaint.setTextSize(mExampleDimension);
         mTextPaint.setColor(mExampleColor);
         mTextWidth = mTextPaint.measureText(mExampleString);
+
+        mHourTextWidth[0] = mTextPaint.measureText("0");
+        mHourTextWidth[1] = mTextPaint.measureText("6");
+        mHourTextWidth[2] = mTextPaint.measureText("12");
+        mHourTextWidth[3] = mTextPaint.measureText("18");
 
         Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
 //        mTextHeight = fontMetrics.bottom;
@@ -386,6 +394,7 @@ public class SoraGraphView extends View {
             y = (float)(paddingTop + contentHeight);
 
             int nCount=0;
+            int nHour = 0;
             float doty = 0f;
             float fradius = 3.0f;
             float fOXY[] = { 0.0f, 0.0f  };
@@ -430,7 +439,8 @@ public class SoraGraphView extends View {
                 if( data.getDate().get(Calendar.HOUR_OF_DAY) == 0 ){
                     canvas.drawLine(x, paddingTop, x, contentHeight + paddingTop, mLine);
                     if(0 < mDispDay && mDispDay < 6) {
-                        canvas.drawText("0", x - 5.0f, paddingTop + mTextHeight, mTextPaint);
+                        nHour=0;
+                        canvas.drawText("0", x - mHourTextWidth[nHour++]/2, paddingTop + mTextHeight, mTextPaint);
                     }
                 }
                 else if(data.getDate().get(Calendar.HOUR_OF_DAY) % 6 == 0 && ( 0 < mDispDay && mDispDay < 6)){
@@ -438,7 +448,7 @@ public class SoraGraphView extends View {
                     mHourPath.lineTo(x, contentHeight + paddingTop);
                     canvas.drawPath(mHourPath, mHourLine);
                     canvas.drawText(String.format("%d", data.getDate().get(Calendar.HOUR_OF_DAY)),
-                            x - 5.0f, paddingTop + mTextHeight, mTextPaint);
+                            x - mHourTextWidth[nHour++]/2, paddingTop + mTextHeight, mTextPaint);
                 }
                 if( data.getDate().get(Calendar.HOUR_OF_DAY) == 1 ){
                     // 日付描画
