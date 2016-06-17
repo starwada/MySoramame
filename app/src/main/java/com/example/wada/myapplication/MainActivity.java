@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -73,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
 
             getSupportActionBar().setTitle(R.string.app_name);
             getSupportActionBar().setIcon(R.drawable.ic_action_name);
+            // Get a support ActionBar corresponding to this toolbar
+            //ActionBar ab = getSupportActionBar();
+            // Enable the Up button
+            //ab.setDisplayHomeAsUpEnabled(true);
 
         }
         catch(java.lang.NullPointerException e){
@@ -83,11 +88,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
-
         // Locate MenuItem with ShareActionProvider
         MenuItem item = menu.findItem(R.id.menu_item_share);
         // Fetch and store ShareActionProvider
-        mShareActionProvider = (ShareActionProvider) item.getActionProvider();
+        //mShareActionProvider = (ShareActionProvider) item.getActionProvider();
 
         return super.onCreateOptionsMenu(menu);
     }
