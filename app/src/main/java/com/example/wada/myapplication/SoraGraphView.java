@@ -378,9 +378,6 @@ public class SoraGraphView extends View {
             }
         }
 
-        // Pathは内部でパスを保持しているので、リセットが必要。
-        mHourPath.reset();
-
         // グラフ
         if(mSoramame.getSize() > 0){
             ArrayList<Soramame.SoramameData> list = mSoramame.getData();
@@ -444,6 +441,8 @@ public class SoraGraphView extends View {
                     }
                 }
                 else if(data.getDate().get(Calendar.HOUR_OF_DAY) % 6 == 0 && ( 0 < mDispDay && mDispDay < 6)){
+                    // Pathは内部でパスを保持しているので、リセットが必要。
+                    mHourPath.reset();
                     mHourPath.moveTo(x, paddingTop);
                     mHourPath.lineTo(x, contentHeight + paddingTop);
                     canvas.drawPath(mHourPath, mHourLine);

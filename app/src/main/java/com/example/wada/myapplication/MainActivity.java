@@ -9,12 +9,15 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
+import android.os.Environment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
@@ -22,7 +25,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ShareActionProvider;
 import android.widget.Spinner;
 
 import org.jsoup.Jsoup;
@@ -92,8 +94,12 @@ public class MainActivity extends AppCompatActivity {
         MenuItem item = menu.findItem(R.id.menu_item_share);
         // Fetch and store ShareActionProvider
         //mShareActionProvider = (ShareActionProvider) item.getActionProvider();
+        //mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+        mShareActionProvider = new ShareActionProvider(MainActivity.this);
+        MenuItemCompat.setActionProvider(item , mShareActionProvider);
 
-        return super.onCreateOptionsMenu(menu);
+        //return super.onCreateOptionsMenu(menu);
+        return true;
     }
 
     @Override
@@ -105,6 +111,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.menu_selectstation:
                 SelectStation();
+                break;
+            case R.id.menu_item_share:
+                setShareIntent(createShareIntent());
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -149,6 +158,14 @@ public class MainActivity extends AppCompatActivity {
         if (mShareActionProvider != null) {
             mShareActionProvider.setShareIntent(shareIntent);
         }
+    }
+
+    private Intent createShareIntent(){
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/capture.jpeg");
+        shareIntent.setType("image/jpeg");
+        return shareIntent;
     }
 
     // 表示データ種別および日数のスピナー設定
