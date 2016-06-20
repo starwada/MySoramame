@@ -94,10 +94,8 @@ public class MainActivity extends AppCompatActivity {
         MenuItem item = menu.findItem(R.id.menu_item_share);
         // Fetch and store ShareActionProvider
         //mShareActionProvider = (ShareActionProvider) item.getActionProvider();
-        //mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
-        mShareActionProvider = new ShareActionProvider(MainActivity.this);
-        MenuItemCompat.setActionProvider(item , mShareActionProvider);
-
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+        setShareIntent(createShareIntent());
         //return super.onCreateOptionsMenu(menu);
         return true;
     }
@@ -112,9 +110,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.menu_selectstation:
                 SelectStation();
                 break;
-            case R.id.menu_item_share:
-                setShareIntent(createShareIntent());
-                break;
+//            case R.id.menu_item_share:
+//                setShareIntent(createShareIntent());
+//                break;
         }
         return super.onOptionsItemSelected(item);
     }
