@@ -87,6 +87,7 @@ public class GraphViewAdapter extends RecyclerView.Adapter<GraphViewAdapter.View
                 Uri location = Uri.parse("geo:0,0?q=" + Uri.encode(data.getAddress()));
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, location);
                 mapIntent.setPackage("com.google.android.apps.maps");
+                holder.soragraph.Capture();
 
                 if (mapIntent.resolveActivity(mContext.getPackageManager()) != null) {
                     mContext.startActivity(mapIntent);
@@ -110,6 +111,9 @@ public class GraphViewAdapter extends RecyclerView.Adapter<GraphViewAdapter.View
 //                    holder.soragraph.showToast();
                     TouchEvent( holder, position);
                 }
+                //else if(event.getActionMasked() == MotionEvent.ACTION_POINTER_INDEX_MASK) {
+
+                //}
                 return true;
             }
         });
@@ -118,16 +122,13 @@ public class GraphViewAdapter extends RecyclerView.Adapter<GraphViewAdapter.View
             @Override
             public boolean onLongClick(View v) {
                 holder.soragraph.Capture();
-                Intent shareIntent = new Intent();
-                shareIntent.setAction(Intent.ACTION_SEND);
-                shareIntent.putExtra(Intent.EXTRA_STREAM, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/capture.jpeg");
-                shareIntent.setType("image/jpeg");
-                mContext.startActivity(Intent.createChooser(shareIntent, mContext.getResources().getText(R.string.send_to)));
+                holder.soragraph.showToast();
                 return false;
             }
         });
     }
 
+    // 指定位置の日時、計測値を設定
     public void TouchEvent(final ViewHolder holder, final int position ){
         ArrayList<Soramame.SoramameData> list = mList.get(position).getData();
         Soramame.SoramameData val = list.get(holder.soragraph.getPos());
@@ -155,7 +156,6 @@ public class GraphViewAdapter extends RecyclerView.Adapter<GraphViewAdapter.View
                 }
                 break;
         }
-
     }
 
     @Override
