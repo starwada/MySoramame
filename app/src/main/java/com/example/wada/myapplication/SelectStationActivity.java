@@ -138,7 +138,7 @@ public class SelectStationActivity extends Activity {
                 }
                 mDb.close();
             }catch (SQLiteException e){
-
+                e.printStackTrace();
             }
         }
 

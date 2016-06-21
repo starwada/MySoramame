@@ -28,6 +28,13 @@
             android:id="@+id/MstName"
             />
 
+            <ImageView
+                android:id="@+id/card_snap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/ic_card_snap"/>
+
         <com.example.wada.myapplication.SoraGraphView
             android:id="@+id/soragraph"
             android:layout_below="@+id/MstName"

@@ -269,7 +269,7 @@ public class SoraGraphView extends View {
 
     // カレントにトースト（ツールチップ）表示
     public void showToast(){
-        Toast toast = Toast.makeText(this.getContext(), mstrValue, Toast.LENGTH_SHORT);
+        Toast toast = Toast.makeText(this.getContext(), mSoramame.getMstName(), Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.TOP|Gravity.START, mToastPos[0], mToastPos[1]);
         toast.show();
     }
@@ -298,10 +298,22 @@ public class SoraGraphView extends View {
             if (fos != null) {
                 try {
                     fos.close();
+                    // 共有インテント設定
+                    setShareIntent();
                 } catch (IOException ie) {
                     fos = null;
                 }
             }
+        }
+    }
+
+    // ShareActionProvider用にIntentを設定する
+    public void setShareIntent(){
+        MainActivity act = (MainActivity) getContext();
+        if(act != null) {
+            String strMode;
+            strMode = String.format("(%s):", mMode == 0 ? "PM2.5" : (mMode == 1 ? "光化学オキシダント" : "風速"));
+            act.setShareIntent(mstrValue + strMode + mSoramame.getMstName());
         }
     }
 

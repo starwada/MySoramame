@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v4.view.MenuItemCompat;
@@ -95,7 +96,8 @@ public class MainActivity extends AppCompatActivity {
         // Fetch and store ShareActionProvider
         //mShareActionProvider = (ShareActionProvider) item.getActionProvider();
         mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
-        setShareIntent(createShareIntent());
+        setShareIntent("");
+
         //return super.onCreateOptionsMenu(menu);
         return true;
     }
@@ -110,9 +112,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.menu_selectstation:
                 SelectStation();
                 break;
-//            case R.id.menu_item_share:
-//                setShareIntent(createShareIntent());
-//                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -151,6 +150,18 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
     }
 
+    // Intentは複数設定してもOKのようだ
+    public void setShareIntent(String strText){
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.setType("image/jpeg");
+        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/capture.jpeg"));
+        shareIntent.putExtra(Intent.EXTRA_TEXT, strText);
+        shareIntent.setType("text/plain");
+        setShareIntent(shareIntent);
+
+    }
+
     // Call to update the share intent
     private void setShareIntent(Intent shareIntent) {
         if (mShareActionProvider != null) {
@@ -158,13 +169,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private Intent createShareIntent(){
-        Intent shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.putExtra(Intent.EXTRA_STREAM, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/capture.jpeg");
-        shareIntent.setType("image/jpeg");
-        return shareIntent;
-    }
+//    private Intent createShareIntent(){
+//        Intent shareIntent = new Intent();
+//        shareIntent.setAction(Intent.ACTION_SEND);
+//        shareIntent.setType("image/jpeg");
+//        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/capture.jpeg"));
+//        shareIntent.putExtra(Intent.EXTRA_TEXT, "wada test");
+//        shareIntent.setType("text/plain");
+//        return shareIntent;
+//    }
 
     // 表示データ種別および日数のスピナー設定
     private void SetSpinner(){
@@ -284,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
             c.close();
             mDb.close();
         }catch (SQLiteException e){
-
+            e.printStackTrace();
         }
 
         return rc;
@@ -308,7 +321,7 @@ public class MainActivity extends AppCompatActivity {
             mDb.update(SoramameContract.FeedEntry.TABLE_NAME, values, strWhereCause, strWhereArg);
             mDb.close();
         }catch (SQLiteException e){
-
+            e.printStackTrace();
         }
 
         return rc;
@@ -339,7 +352,7 @@ public class MainActivity extends AppCompatActivity {
             }
             mDb.close();
         }catch (SQLiteException e){
-
+            e.printStackTrace();
         }
 
         return rc;

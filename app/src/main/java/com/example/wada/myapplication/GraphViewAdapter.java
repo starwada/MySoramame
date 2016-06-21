@@ -34,7 +34,7 @@ public class GraphViewAdapter extends RecyclerView.Adapter<GraphViewAdapter.View
         public SoraGraphView soragraph;
         public TextView soramax, soraave;
         public TextView date, hour, value;
-        public ImageView imageWS;
+        public ImageView imageWS, imageSnap;
 
         public ViewHolder(View view){
             super(view);
@@ -46,6 +46,7 @@ public class GraphViewAdapter extends RecyclerView.Adapter<GraphViewAdapter.View
             hour = (TextView)view.findViewById(R.id.hour);
             value = (TextView)view.findViewById(R.id.value);
             imageWS = (ImageView)view.findViewById(R.id.imageWS);
+            imageSnap = (ImageView)view.findViewById(R.id.card_snap);
         }
     }
 
@@ -87,7 +88,6 @@ public class GraphViewAdapter extends RecyclerView.Adapter<GraphViewAdapter.View
                 Uri location = Uri.parse("geo:0,0?q=" + Uri.encode(data.getAddress()));
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, location);
                 mapIntent.setPackage("com.google.android.apps.maps");
-                holder.soragraph.Capture();
 
                 if (mapIntent.resolveActivity(mContext.getPackageManager()) != null) {
                     mContext.startActivity(mapIntent);
@@ -118,7 +118,8 @@ public class GraphViewAdapter extends RecyclerView.Adapter<GraphViewAdapter.View
             }
         });
 
-        holder.soragraph.setOnLongClickListener(new View.OnLongClickListener() {
+        // キャプチャアイコンのロングタップ
+        holder.imageSnap.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 holder.soragraph.Capture();
