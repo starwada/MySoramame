@@ -10,9 +10,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,7 +46,7 @@ import java.util.Locale;
  * 都道府県の測定局を取得する（どの時点で更新されるか分からないので）
  * メイン画面で表示する測定局（コード）はファイルに保持しておく
  */
-public class SelectStationActivity extends Activity {
+public class SelectStationActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -67,35 +70,49 @@ public class SelectStationActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_selectstation);
 
-        mPref = 0;
-        // 都道府県インデックスを取得
-        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        mPref = sharedPref.getInt("CurrentPref", 1);
+        try {
+            Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(myToolbar);
+            getSupportActionBar().setTitle(R.string.app_name);
+            getSupportActionBar().setIcon(R.drawable.ic_action_name);
+            // Get a support ActionBar corresponding to this toolbar
+            ActionBar ab = getSupportActionBar();
+            // Enable the Up button
+            ab.setDisplayHomeAsUpEnabled(true);
 
-        // SORASUBURLから都道府県名とコードを取得、スピナーに設定
-        Spinner prefspinner = (Spinner)findViewById(R.id.spinner);
-        prefspinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            mPref = 0;
+            // 都道府県インデックスを取得
+            SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+            mPref = sharedPref.getInt("CurrentPref", 1);
 
-                mPref = position + 1;
+            // SORASUBURLから都道府県名とコードを取得、スピナーに設定
+            Spinner prefspinner = (Spinner) findViewById(R.id.spinner);
+            prefspinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-                // 選択都道府県での測定局データを取得するまえに、
-                // 現在の選択状態をDBに保存
-                setSelectedStation();
+                    mPref = position + 1;
 
-                // 選択都道府県での測定局データ取得
-                new SoraStation().execute();
-            }
+                    // 選択都道府県での測定局データを取得するまえに、
+                    // 現在の選択状態をDBに保存
+                    setSelectedStation();
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+                    // 選択都道府県での測定局データ取得
+                    new SoraStation().execute();
+                }
 
-            }
-        });
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
 
-        // 都道府県取得
-        new PrefSpinner().execute();
+                }
+            });
+
+            // 都道府県取得
+            new PrefSpinner().execute();
+
+        }catch(NullPointerException e){
+            e.printStackTrace();
+        }
 
     }
 
