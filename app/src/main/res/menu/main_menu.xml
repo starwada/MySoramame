@@ -4,8 +4,6 @@
 
     <item android:id="@+id/menu_selectstation"
         android:title="@string/menu_selectstation"/>
-    <item android:id="@+id/menu_set"
-        android:title="@string/menu_set" />
     <item
         android:id="@+id/menu_item_share"
         app:showAsAction="ifRoom"

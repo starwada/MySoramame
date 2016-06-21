@@ -106,9 +106,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()){
-            case R.id.menu_set:
-                Setting();
-                break;
             case R.id.menu_selectstation:
                 SelectStation();
                 break;
@@ -244,12 +241,6 @@ public class MainActivity extends AppCompatActivity {
     // 測定局選択アクティビティ
     private void SelectStation(){
         Intent intent = new Intent(MainActivity.this, SelectStationActivity.class);
-        startActivity(intent);
-    }
-
-    // 設定アクティビティ
-    private void Setting(){
-        Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
         startActivity(intent);
     }
 
