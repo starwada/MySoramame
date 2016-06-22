@@ -50,11 +50,11 @@ public class GraphViewAdapter extends RecyclerView.Adapter<GraphViewAdapter.View
         }
     }
 
-    public GraphViewAdapter(Context context, List<Soramame> objects){
+    public GraphViewAdapter(Context context, List<Soramame> objects, int mode, int day){
         this.mContext = context;
         this.mList = objects;
-        this.mMode = 0;
-        this.mDay = 0;
+        this.mMode = mode;
+        this.mDay = day;
     }
 
     public void SetMode(int mode){ mMode = mode; }

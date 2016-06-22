@@ -348,7 +348,16 @@ public class Soramame implements Parcelable{
 
     public boolean isLoaded(GregorianCalendar cal){
         boolean loaded = false;
-        if( m_aData.get(0).getDate().before(cal) ){ loaded = true; }
+        if(m_aData == null){ return false; }
+
+//        if( m_aData.get(0).getDate().before(cal) ){ loaded = true; }
+
+        // getTimeInMillis()にてミリ秒を取得
+        // gap/60*1000 で分の差。
+        long gap = cal.getTimeInMillis() - m_aData.get(0).getDate().getTimeInMillis();
+        // ２時間半を目安とする。
+        // 更新のタイミングは計測時間の１時間半後くらいなので、前の計測時間からは２時間半となる。
+        if(gap / (60*1000) < 150){ loaded = true; }
 
         return loaded;
     }

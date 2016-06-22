@@ -73,17 +73,21 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
-            setSupportActionBar(myToolbar);
+            if(myToolbar != null) {
+                setSupportActionBar(myToolbar);
 
-            getSupportActionBar().setTitle(R.string.app_name);
-            getSupportActionBar().setIcon(R.drawable.ic_action_name);
+                getSupportActionBar().setTitle(R.string.app_name);
+                getSupportActionBar().setIcon(R.drawable.ic_action_name);
+            }
             // Get a support ActionBar corresponding to this toolbar
             //ActionBar ab = getSupportActionBar();
             // Enable the Up button
             //ab.setDisplayHomeAsUpEnabled(true);
             //SwipeRefreshLayoutとListenerの設定
             mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
-            mSwipeRefreshLayout.setOnRefreshListener(mOnRefreshListener);
+            if(mSwipeRefreshLayout != null) {
+                mSwipeRefreshLayout.setOnRefreshListener(mOnRefreshListener);
+            }
 
             SetSpinner();
         }
@@ -162,9 +166,6 @@ public class MainActivity extends AppCompatActivity {
 
     // mListデータの更新処理
     private void updateData(){
-        // ここで、データの更新をチェックする
-//        GregorianCalendar now = new GregorianCalendar(Locale.JAPAN);
-
         // DBから選択された測定局を取得し、そのデータを問い合わせる
         getSelectedStation();
 
@@ -221,21 +222,6 @@ public class MainActivity extends AppCompatActivity {
             if(mDataType != null) {
                 mDataType.setAdapter(pref);
                 mDataType.setSelection(mCurrentType);
-                mDataType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        if (mAdapter != null) {
-                            GraphViewAdapter adapter = (GraphViewAdapter) mAdapter;
-                            adapter.SetMode(position);
-                            mAdapter.notifyDataSetChanged();
-                        }
-                        mCurrentType = position;
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-                    }
-                });
             }
 
             ArrayList<String> dayList = new ArrayList<String>();
@@ -254,6 +240,40 @@ public class MainActivity extends AppCompatActivity {
             if(mDay != null) {
                 mDay.setAdapter(day);
                 mDay.setSelection(mCurrentDay - 1);
+            }
+        }
+        catch(java.lang.NullPointerException e){
+            e.printStackTrace();
+        }
+    }
+
+    // スピナーのリスナーを設定
+    private void SetSpinnerListener(){
+
+        try {
+            // スピナーリスト設定
+            Spinner mDataType = (Spinner) findViewById(R.id.spinner2);
+            if(mDataType != null) {
+                mDataType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        if (mAdapter != null) {
+                            GraphViewAdapter adapter = (GraphViewAdapter) mAdapter;
+                            adapter.SetMode(position);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                        mCurrentType = position;
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                    }
+                });
+            }
+
+            // スピナーリスト設定
+            Spinner mDay = (Spinner) findViewById(R.id.spinnerDay);
+            if(mDay != null) {
                 mDay.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -413,6 +433,7 @@ public class MainActivity extends AppCompatActivity {
                 GregorianCalendar now = new GregorianCalendar(Locale.JAPAN);
 
                 for( Soramame soramame : mList) {
+                    // 計測時間との差をみる
                     if(soramame.isLoaded(now)){ continue; }
                     // 現在時間と測定最新時間を比べるともっと早くなる。
                     // 本来、ここに測定局コードを指定する。
@@ -481,7 +502,7 @@ public class MainActivity extends AppCompatActivity {
                 if( mAdapter != null ){
                     mAdapter = null;
                 }
-                mAdapter = new GraphViewAdapter(MainActivity.this, mList);
+                mAdapter = new GraphViewAdapter(MainActivity.this, mList, mCurrentType, mCurrentDay == 0 ? 8 : mCurrentDay-1);
 
                 mLayoutManager = new LinearLayoutManager(MainActivity.this);
                 mRecyclerView.setLayoutManager(mLayoutManager);
@@ -489,7 +510,14 @@ public class MainActivity extends AppCompatActivity {
                 mRecyclerView.setItemAnimator(new DefaultItemAnimator());
                 mRecyclerView.setAdapter(mAdapter);
 
-                SetSpinner();
+                // スピナーリスナー設定
+                SetSpinnerListener();
+//                if (mAdapter != null) {
+//                    GraphViewAdapter adapter = (GraphViewAdapter) mAdapter;
+//                    adapter.SetMode(mCurrentType);
+//                    adapter.SetDispDay(mCurrentDay);
+//                    mAdapter.notifyDataSetChanged();
+//                }
 
                 // 以下タッチヘルパー
                 // リサイクラービューにて要素を入れ替えたり、スワイプで削除したりできる。
