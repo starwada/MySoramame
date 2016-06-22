@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -37,6 +38,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 
 // まず、表示する測定局の番号リストを保持させる。
@@ -48,21 +50,19 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private ShareActionProvider mShareActionProvider;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private static final String SORAPREFFILE = "SoraPrefFile";
-
     private static  final  String SORABASEURL="http://soramame.taiki.go.jp/";
 //    private static final String SORASUBURL ="MstItiran.php";
     private static final String SORADATAURL = "DataList.php?MstCode=";
     // 指定都道府県の測定局一覧取得
     private static final String SORAPREFURL ="MstItiranFrame.php?Pref=";
 
-//    ProgressDialog mProgressDialog;
     String m_strMstURL;     // 測定局のURL
-//    private Soramame mSoramame;
-    ArrayList<Soramame> mList;
-    private Spinner mDataType;
-    private Spinner mDay;
+
+    private static ArrayList<Soramame> mList;   // 測定局別計測データ
+
     int mCurrentType = 0;       // 表示データ種別スピナー
     int mCurrentDay = 3;        // 表示日数スピナー
 
@@ -81,12 +81,27 @@ public class MainActivity extends AppCompatActivity {
             //ActionBar ab = getSupportActionBar();
             // Enable the Up button
             //ab.setDisplayHomeAsUpEnabled(true);
+            //SwipeRefreshLayoutとListenerの設定
+            mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
+            mSwipeRefreshLayout.setOnRefreshListener(mOnRefreshListener);
 
+            SetSpinner();
         }
         catch(java.lang.NullPointerException e){
             e.printStackTrace();
         }
     }
+    //swipeでリフレッシュした時の通信処理とグルグルを止める設定を書く
+    private SwipeRefreshLayout.OnRefreshListener mOnRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
+        @Override
+        public void onRefresh() {
+            /*リフレッシュした時の通信処理を書く*/
+            updateData();
+
+            //setRefreshing(false)でグルグル終了できる
+            mSwipeRefreshLayout.setRefreshing(false);
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -115,16 +130,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
-        // ここで、データの更新をチェックする
-//        GregorianCalendar now = new GregorianCalendar(Locale.JAPAN);
+        // mList更新
+        updateData();
 
-        // DBから選択された測定局を取得し、そのデータを問い合わせる
-        getSelectedStation();
-
-        // 表示する測定局がたくさんあるとここで時間がかかる
-        if( mList != null) {
-            new SoraDesc().execute();
-        }
         super.onStart();
     }
 
@@ -152,6 +160,21 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
     }
 
+    // mListデータの更新処理
+    private void updateData(){
+        // ここで、データの更新をチェックする
+//        GregorianCalendar now = new GregorianCalendar(Locale.JAPAN);
+
+        // DBから選択された測定局を取得し、そのデータを問い合わせる
+        getSelectedStation();
+
+        // 表示する測定局がたくさんあるとここで時間がかかる
+        if( mList != null) {
+            new SoraDesc().execute();
+        }
+
+    }
+
     // Intentは複数設定してもOKのようだ
     public void setShareIntent(String strText){
         Intent shareIntent = new Intent();
@@ -161,7 +184,6 @@ public class MainActivity extends AppCompatActivity {
         shareIntent.putExtra(Intent.EXTRA_TEXT, strText);
         shareIntent.setType("text/plain");
         setShareIntent(shareIntent);
-
     }
 
     // Call to update the share intent
@@ -187,60 +209,71 @@ public class MainActivity extends AppCompatActivity {
         mCurrentType = sharedPref.getInt("CurrentType", 0);
         mCurrentDay = sharedPref.getInt("CurrentDay", 3);
 
-        ArrayList<String> dataList = new ArrayList<String>();
-        dataList.add("PM2.5");
-        dataList.add("OX(光化学オキシダント)");
-        dataList.add("WS(風速)");
-        ArrayAdapter<String> pref = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, dataList);
-        pref.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // スピナーリスト設定
-        mDataType = (Spinner)findViewById(R.id.spinner2);
-        mDataType.setAdapter(pref);
-        mDataType.setSelection(mCurrentType);
-        mDataType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if( mAdapter != null) {
-                    GraphViewAdapter adapter = (GraphViewAdapter) mAdapter;
-                    adapter.SetMode(position);
-                    mAdapter.notifyDataSetChanged();
-                }
-                mCurrentType = position;
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
+        try {
+            ArrayList<String> dataList = new ArrayList<String>();
+            dataList.add("PM2.5");
+            dataList.add("OX(光化学オキシダント)");
+            dataList.add("WS(風速)");
+            ArrayAdapter<String> pref = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, dataList);
+            pref.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            // スピナーリスト設定
+            Spinner mDataType = (Spinner) findViewById(R.id.spinner2);
+            if(mDataType != null) {
+                mDataType.setAdapter(pref);
+                mDataType.setSelection(mCurrentType);
+                mDataType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        if (mAdapter != null) {
+                            GraphViewAdapter adapter = (GraphViewAdapter) mAdapter;
+                            adapter.SetMode(position);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                        mCurrentType = position;
+                    }
 
-        ArrayList<String> dayList = new ArrayList<String>();
-        dayList.add("１日");
-        dayList.add("２日");
-        dayList.add("３日");
-        dayList.add("４日");
-        dayList.add("５日");
-        dayList.add("６日");
-        dayList.add("７日");
-        dayList.add("最大");
-        ArrayAdapter<String> day = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, dayList);
-        day.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // スピナーリスト設定
-        mDay = (Spinner)findViewById(R.id.spinnerDay);
-        mDay.setAdapter(day);
-        mDay.setSelection(mCurrentDay-1);
-        mDay.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if( mAdapter != null) {
-                    GraphViewAdapter adapter = (GraphViewAdapter) mAdapter;
-                    adapter.SetDispDay(position);
-                    mAdapter.notifyDataSetChanged();
-                }
-                mCurrentDay = (position+1 == 8 ? 0 : position+1);
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                    }
+                });
             }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+
+            ArrayList<String> dayList = new ArrayList<String>();
+            dayList.add("１日");
+            dayList.add("２日");
+            dayList.add("３日");
+            dayList.add("４日");
+            dayList.add("５日");
+            dayList.add("６日");
+            dayList.add("７日");
+            dayList.add("最大");
+            ArrayAdapter<String> day = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, dayList);
+            day.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            // スピナーリスト設定
+            Spinner mDay = (Spinner) findViewById(R.id.spinnerDay);
+            if(mDay != null) {
+                mDay.setAdapter(day);
+                mDay.setSelection(mCurrentDay - 1);
+                mDay.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        if (mAdapter != null) {
+                            GraphViewAdapter adapter = (GraphViewAdapter) mAdapter;
+                            adapter.SetDispDay(position);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                        mCurrentDay = (position + 1 == 8 ? 0 : position + 1);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                    }
+                });
             }
-        });
+        }
+        catch(java.lang.NullPointerException e){
+            e.printStackTrace();
+        }
     }
 
     // 測定局選択アクティビティ
@@ -377,8 +410,10 @@ public class MainActivity extends AppCompatActivity {
             try
             {
                 if( mList.isEmpty()){ return null; }
+                GregorianCalendar now = new GregorianCalendar(Locale.JAPAN);
 
                 for( Soramame soramame : mList) {
+                    if(soramame.isLoaded(now)){ continue; }
                     // 現在時間と測定最新時間を比べるともっと早くなる。
                     // 本来、ここに測定局コードを指定する。
                     String url = String.format(Locale.ENGLISH, "%s%s%d", SORABASEURL, SORADATAURL, soramame.getMstCode());
@@ -439,10 +474,9 @@ public class MainActivity extends AppCompatActivity {
             // 以下ではだめ mList全てが最新ならスルー
             //if(count == 0){mProgressDialog.dismiss();return;}
 
-            if(mList != null)
+            mRecyclerView = (RecyclerView) findViewById(R.id.graphview);
+            if(mList != null && mRecyclerView != null)
             {
-                mRecyclerView = (RecyclerView) findViewById(R.id.graphview);
-
                 mAdapter = mRecyclerView.getAdapter();
                 if( mAdapter != null ){
                     mAdapter = null;

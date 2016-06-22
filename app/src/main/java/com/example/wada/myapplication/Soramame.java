@@ -343,9 +343,13 @@ public class Soramame implements Parcelable{
         GregorianCalendar cal = new GregorianCalendar();
         cal.set(Integer.valueOf(strYear), Integer.valueOf(strMon), Integer.valueOf(strDay), Integer.valueOf(strHour), 0);
 
+        return isLoaded(cal);
+    }
+
+    public boolean isLoaded(GregorianCalendar cal){
         boolean loaded = false;
         if( m_aData.get(0).getDate().before(cal) ){ loaded = true; }
-        
+
         return loaded;
     }
 

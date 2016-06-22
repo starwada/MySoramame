@@ -87,25 +87,27 @@ public class SelectStationActivity extends AppCompatActivity {
 
             // SORASUBURLから都道府県名とコードを取得、スピナーに設定
             Spinner prefspinner = (Spinner) findViewById(R.id.spinner);
-            prefspinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            if(prefspinner != null) {
+                prefspinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-                    mPref = position + 1;
+                        mPref = position + 1;
 
-                    // 選択都道府県での測定局データを取得するまえに、
-                    // 現在の選択状態をDBに保存
-                    setSelectedStation();
+                        // 選択都道府県での測定局データを取得するまえに、
+                        // 現在の選択状態をDBに保存
+                        setSelectedStation();
 
-                    // 選択都道府県での測定局データ取得
-                    new SoraStation().execute();
-                }
+                        // 選択都道府県での測定局データ取得
+                        new SoraStation().execute();
+                    }
 
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
 
-                }
-            });
+                    }
+                });
+            }
 
             // 都道府県取得
             new PrefSpinner().execute();
@@ -258,8 +260,10 @@ public class SelectStationActivity extends AppCompatActivity {
             pref.setDropDownViewResource(R.layout.prefspinner_drop_item);
             // スピナーリスト設定
             Spinner prefSpinner = (Spinner)findViewById(R.id.spinner);
-            prefSpinner.setAdapter(pref);
-            prefSpinner.setSelection(mPref-1);
+            if(prefSpinner != null) {
+                prefSpinner.setAdapter(pref);
+                prefSpinner.setSelection(mPref - 1);
+            }
         }
 
         private int getPrefInfo()
@@ -432,10 +436,9 @@ public class SelectStationActivity extends AppCompatActivity {
         {
             if( mDb.isOpen()){ mDb.close(); }
             // 測定局データ取得後にリスト表示
-            if(mList != null)
+            mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+            if(mList != null && mRecyclerView != null)
             {
-                mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-
                 mAdapter = mRecyclerView.getAdapter();
                 if( mAdapter != null ){
                     mAdapter = null;
