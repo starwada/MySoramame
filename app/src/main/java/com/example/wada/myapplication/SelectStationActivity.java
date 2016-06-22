@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -50,6 +51,7 @@ public class SelectStationActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private static final String SORAPREFFILE = "SoraPrefFile";
 
@@ -112,11 +114,29 @@ public class SelectStationActivity extends AppCompatActivity {
             // 都道府県取得
             new PrefSpinner().execute();
 
+            //SwipeRefreshLayoutとListenerの設定
+            mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
+            if (mSwipeRefreshLayout != null) {
+                mSwipeRefreshLayout.setOnRefreshListener(mOnRefreshListener);
+            }
+
         }catch(NullPointerException e){
             e.printStackTrace();
         }
 
     }
+    //swipeでリフレッシュした時の通信処理とグルグルを止める設定を書く
+    private SwipeRefreshLayout.OnRefreshListener mOnRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
+        @Override
+        public void onRefresh() {
+            /*リフレッシュした時の通信処理を書く*/
+            // カレント都道府県の測定局データをDBから削除して、新たに取得
+            //updateData();
+
+            //setRefreshing(false)でグルグル終了できる
+            mSwipeRefreshLayout.setRefreshing(false);
+        }
+    };
 
     // 測定局の選択フラグをDBに設定する
     private int setSelectedStation(){
@@ -184,6 +204,11 @@ public class SelectStationActivity extends AppCompatActivity {
 //        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override

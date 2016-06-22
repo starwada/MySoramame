@@ -53,11 +53,11 @@ public class MainActivity extends AppCompatActivity {
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private static final String SORAPREFFILE = "SoraPrefFile";
-    private static  final  String SORABASEURL="http://soramame.taiki.go.jp/";
-//    private static final String SORASUBURL ="MstItiran.php";
+    private static final String SORABASEURL = "http://soramame.taiki.go.jp/";
+    //    private static final String SORASUBURL ="MstItiran.php";
     private static final String SORADATAURL = "DataList.php?MstCode=";
     // 指定都道府県の測定局一覧取得
-    private static final String SORAPREFURL ="MstItiranFrame.php?Pref=";
+    private static final String SORAPREFURL = "MstItiranFrame.php?Pref=";
 
     String m_strMstURL;     // 測定局のURL
 
@@ -73,28 +73,25 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
-            if(myToolbar != null) {
+            if (myToolbar != null) {
                 setSupportActionBar(myToolbar);
 
                 getSupportActionBar().setTitle(R.string.app_name);
                 getSupportActionBar().setIcon(R.drawable.ic_action_name);
             }
-            // Get a support ActionBar corresponding to this toolbar
-            //ActionBar ab = getSupportActionBar();
-            // Enable the Up button
-            //ab.setDisplayHomeAsUpEnabled(true);
+
             //SwipeRefreshLayoutとListenerの設定
             mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
-            if(mSwipeRefreshLayout != null) {
+            if (mSwipeRefreshLayout != null) {
                 mSwipeRefreshLayout.setOnRefreshListener(mOnRefreshListener);
             }
 
             SetSpinner();
-        }
-        catch(java.lang.NullPointerException e){
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
     }
+
     //swipeでリフレッシュした時の通信処理とグルグルを止める設定を書く
     private SwipeRefreshLayout.OnRefreshListener mOnRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
         @Override
@@ -124,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.menu_selectstation:
                 SelectStation();
                 break;
@@ -165,19 +162,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // mListデータの更新処理
-    private void updateData(){
+    private void updateData() {
         // DBから選択された測定局を取得し、そのデータを問い合わせる
         getSelectedStation();
 
         // 表示する測定局がたくさんあるとここで時間がかかる
-        if( mList != null) {
+        if (mList != null) {
             new SoraDesc().execute();
         }
 
     }
 
     // Intentは複数設定してもOKのようだ
-    public void setShareIntent(String strText){
+    public void setShareIntent(String strText) {
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.setType("image/jpeg");
@@ -194,18 +191,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    private Intent createShareIntent(){
-//        Intent shareIntent = new Intent();
-//        shareIntent.setAction(Intent.ACTION_SEND);
-//        shareIntent.setType("image/jpeg");
-//        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/capture.jpeg"));
-//        shareIntent.putExtra(Intent.EXTRA_TEXT, "wada test");
-//        shareIntent.setType("text/plain");
-//        return shareIntent;
-//    }
-
     // 表示データ種別および日数のスピナー設定
-    private void SetSpinner(){
+    private void SetSpinner() {
         SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         mCurrentType = sharedPref.getInt("CurrentType", 0);
         mCurrentDay = sharedPref.getInt("CurrentDay", 3);
@@ -219,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
             pref.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             // スピナーリスト設定
             Spinner mDataType = (Spinner) findViewById(R.id.spinner2);
-            if(mDataType != null) {
+            if (mDataType != null) {
                 mDataType.setAdapter(pref);
                 mDataType.setSelection(mCurrentType);
             }
@@ -237,23 +224,22 @@ public class MainActivity extends AppCompatActivity {
             day.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             // スピナーリスト設定
             Spinner mDay = (Spinner) findViewById(R.id.spinnerDay);
-            if(mDay != null) {
+            if (mDay != null) {
                 mDay.setAdapter(day);
                 mDay.setSelection(mCurrentDay - 1);
             }
-        }
-        catch(java.lang.NullPointerException e){
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
     }
 
     // スピナーのリスナーを設定
-    private void SetSpinnerListener(){
+    private void SetSpinnerListener() {
 
         try {
             // スピナーリスト設定
             Spinner mDataType = (Spinner) findViewById(R.id.spinner2);
-            if(mDataType != null) {
+            if (mDataType != null) {
                 mDataType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -273,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
 
             // スピナーリスト設定
             Spinner mDay = (Spinner) findViewById(R.id.spinnerDay);
-            if(mDay != null) {
+            if (mDay != null) {
                 mDay.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -290,41 +276,41 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
             }
-        }
-        catch(java.lang.NullPointerException e){
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
     }
 
     // 測定局選択アクティビティ
-    private void SelectStation(){
+    private void SelectStation() {
         Intent intent = new Intent(MainActivity.this, SelectStationActivity.class);
         startActivity(intent);
     }
 
     // 測定局の選択フラグをDBより取得する
-    private int getSelectedStation(){
+    private int getSelectedStation() {
         int rc = 0;
 
         SoramameSQLHelper mDbHelper = new SoramameSQLHelper(MainActivity.this);
         try {
             SQLiteDatabase mDb = mDbHelper.getReadableDatabase();
-            if( !mDb.isOpen() ){ return -1; }
+            if (!mDb.isOpen()) {
+                return -1;
+            }
 
             // 本来ここでは、COLUMN_NAME_INDでのソートのみでOK
             Cursor c = mDb.query(SoramameContract.FeedEntry.TABLE_NAME, null,
-                    SoramameContract.FeedEntry.COLUMN_NAME_SEL + " = 1",  null, null, null,
+                    SoramameContract.FeedEntry.COLUMN_NAME_SEL + " = 1", null, null, null,
                     SoramameContract.FeedEntry.COLUMN_NAME_IND + " asc");
-            if( c.getCount() > 0 )
-            {
-                if( c.moveToFirst() ) {
-                    if(mList == null) {
+            if (c.getCount() > 0) {
+                if (c.moveToFirst()) {
+                    if (mList == null) {
                         mList = new ArrayList<Soramame>();
                     }
                     while (true) {
                         Soramame mame = new Soramame(
                                 c.getInt(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_CODE)),
-                                c.getString(c.getColumnIndexOrThrow( SoramameContract.FeedEntry.COLUMN_NAME_STATION)),
+                                c.getString(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_STATION)),
                                 c.getString(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_ADDRESS)));
                         mame.setSelected(1);
                         // 以下はデバッグでインデックスの値を見たいため
@@ -332,20 +318,24 @@ public class MainActivity extends AppCompatActivity {
 
                         // mListを使いまわしするので、重複登録はしない。
                         boolean flag = true;
-                        for( Soramame ent : mList) {
-                            if( ent.getMstCode().equals(mame.getMstCode())){
+                        for (Soramame ent : mList) {
+                            if (ent.getMstCode().equals(mame.getMstCode())) {
                                 flag = false;
                                 break;
                             }
                         }
-                        if(flag){ mList.add(mame); }
-                        if( !c.moveToNext()){ break; }
+                        if (flag) {
+                            mList.add(mame);
+                        }
+                        if (!c.moveToNext()) {
+                            break;
+                        }
                     }
                 }
             }
             c.close();
             mDb.close();
-        }catch (SQLiteException e){
+        } catch (SQLiteException e) {
             e.printStackTrace();
         }
 
@@ -353,23 +343,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //
-    private int updateDBAtStation(int code){
+    private int updateDBAtStation(int code) {
         int rc = 0;
 
         SoramameSQLHelper mDbHelper = new SoramameSQLHelper(MainActivity.this);
         try {
             SQLiteDatabase mDb = mDbHelper.getWritableDatabase();
-            if( !mDb.isOpen() ){ return -1; }
+            if (!mDb.isOpen()) {
+                return -1;
+            }
 
             // 消すんじゃ無かった、フラグを未選択にするだけ。
             String strWhereCause;
             ContentValues values = new ContentValues();
             strWhereCause = SoramameContract.FeedEntry.COLUMN_NAME_CODE + " = ?";
             values.put(SoramameContract.FeedEntry.COLUMN_NAME_SEL, 0);
-            String strWhereArg[] = { String.valueOf(code)};
+            String strWhereArg[] = {String.valueOf(code)};
             mDb.update(SoramameContract.FeedEntry.TABLE_NAME, values, strWhereCause, strWhereArg);
             mDb.close();
-        }catch (SQLiteException e){
+        } catch (SQLiteException e) {
             e.printStackTrace();
         }
 
@@ -377,19 +369,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // mListの選択順をDBに反映させる
-    private int updateDBIndex(){
+    private int updateDBIndex() {
         int rc = 0;
 
-        if( mList == null){ return rc; }
+        if (mList == null) {
+            return rc;
+        }
 
         SoramameSQLHelper mDbHelper = new SoramameSQLHelper(MainActivity.this);
         try {
             SQLiteDatabase mDb = mDbHelper.getWritableDatabase();
-            if( !mDb.isOpen() ){ return -1; }
+            if (!mDb.isOpen()) {
+                return -1;
+            }
 
             int nIndex = 0;
-            for( Soramame data : mList) {
-                if(data.isSelected()) {
+            for (Soramame data : mList) {
+                if (data.isSelected()) {
                     // 消すんじゃ無かった、フラグを未選択にするだけ。
                     String strWhereCause;
                     ContentValues values = new ContentValues();
@@ -400,7 +396,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             mDb.close();
-        }catch (SQLiteException e){
+        } catch (SQLiteException e) {
             e.printStackTrace();
         }
 
@@ -409,32 +405,33 @@ public class MainActivity extends AppCompatActivity {
 
     // これを呼ばれる前にmListが空になることを想定した作りとなっている。
     // 空でなければ、新規データのみ取得するように修正する。
-    private class SoraDesc extends AsyncTask<Void, Void, Void>
-    {
+    private class SoraDesc extends AsyncTask<Void, Void, Void> {
         ProgressDialog mProgressDialog;
         int count = 0;
+
         @Override
-        protected void onPreExecute()
-        {
+        protected void onPreExecute() {
             super.onPreExecute();
             mProgressDialog = new ProgressDialog(MainActivity.this);
-            mProgressDialog.setTitle( "そらまめ データ取得");
+            mProgressDialog.setTitle("そらまめ データ取得");
             mProgressDialog.setMessage("Loading...");
             mProgressDialog.setIndeterminate(false);
             mProgressDialog.show();
         }
 
         @Override
-        protected Void doInBackground(Void... params)
-        {
-            try
-            {
-                if( mList.isEmpty()){ return null; }
+        protected Void doInBackground(Void... params) {
+            try {
+                if (mList.isEmpty()) {
+                    return null;
+                }
                 GregorianCalendar now = new GregorianCalendar(Locale.JAPAN);
 
-                for( Soramame soramame : mList) {
+                for (Soramame soramame : mList) {
                     // 計測時間との差をみる
-                    if(soramame.isLoaded(now)){ continue; }
+                    if (soramame.isLoaded(now)) {
+                        continue;
+                    }
                     // 現在時間と測定最新時間を比べるともっと早くなる。
                     // 本来、ここに測定局コードを指定する。
                     String url = String.format(Locale.ENGLISH, "%s%s%d", SORABASEURL, SORADATAURL, soramame.getMstCode());
@@ -466,13 +463,15 @@ public class MainActivity extends AppCompatActivity {
                         // 0 西暦/1 月/2 日/3 時間
                         // 4 SO2/5 NO/6 NO2/7 NOX/8 CO/9 OX/10 NMHC/11 CH4/12 THC/13 SPM/14 PM2.5/15 SP/16 WD/17 WS
 
-                        if(soramame.isLoaded(data.get(0).text(), data.get(1).text(), data.get(2).text(), data.get(3).text())){ break; }
+                        if (soramame.isLoaded(data.get(0).text(), data.get(1).text(), data.get(2).text(), data.get(3).text())) {
+                            break;
+                        }
                         aData.setData(data.get(0).text(), data.get(1).text(), data.get(2).text(), data.get(3).text(),
                                 data.get(9).text(), data.get(14).text(), data.get(16).text(), data.get(17).text());
                         count++;
                     }
                     // countにて新しいデータが無い場合はスルー
-                    if(count > 0) {
+                    if (count > 0) {
                         if (soramame.getSize() > 0) {
                             aData.addAll(aData.getSize(), soramame.getData());
                             soramame.getData().clear();
@@ -480,44 +479,31 @@ public class MainActivity extends AppCompatActivity {
                         soramame.addAll(0, aData.getData());
                     }
                 }
-            }
-            catch(IOException e)
-            {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
             return null;
         }
 
         @Override
-        protected void onPostExecute(Void result)
-        {
-            // ここも飛ばせるが・・・
-            // 以下ではだめ mList全てが最新ならスルー
-            //if(count == 0){mProgressDialog.dismiss();return;}
+        protected void onPostExecute(Void result) {
 
             mRecyclerView = (RecyclerView) findViewById(R.id.graphview);
-            if(mList != null && mRecyclerView != null)
-            {
+            if (mList != null && mRecyclerView != null) {
                 mAdapter = mRecyclerView.getAdapter();
-                if( mAdapter != null ){
+                if (mAdapter != null) {
                     mAdapter = null;
                 }
-                mAdapter = new GraphViewAdapter(MainActivity.this, mList, mCurrentType, mCurrentDay == 0 ? 8 : mCurrentDay-1);
+                mAdapter = new GraphViewAdapter(MainActivity.this, mList, mCurrentType, mCurrentDay == 0 ? 8 : mCurrentDay - 1);
 
                 mLayoutManager = new LinearLayoutManager(MainActivity.this);
                 mRecyclerView.setLayoutManager(mLayoutManager);
-    //        mRecyclerView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(10), true));
+                //        mRecyclerView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(10), true));
                 mRecyclerView.setItemAnimator(new DefaultItemAnimator());
                 mRecyclerView.setAdapter(mAdapter);
 
                 // スピナーリスナー設定
                 SetSpinnerListener();
-//                if (mAdapter != null) {
-//                    GraphViewAdapter adapter = (GraphViewAdapter) mAdapter;
-//                    adapter.SetMode(mCurrentType);
-//                    adapter.SetDispDay(mCurrentDay);
-//                    mAdapter.notifyDataSetChanged();
-//                }
 
                 // 以下タッチヘルパー
                 // リサイクラービューにて要素を入れ替えたり、スワイプで削除したりできる。
