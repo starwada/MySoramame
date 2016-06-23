@@ -122,8 +122,12 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+            // 測定局選択
             case R.id.menu_selectstation:
                 SelectStation();
+                break;
+            // 操作説明
+            case R.id.menu_help:
                 break;
         }
         return super.onOptionsItemSelected(item);

@@ -68,15 +68,17 @@
                 android:id="@+id/date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/soraave"
+                android:layout_below="@+id/soragraph"
                 android:text="TextView"
-                android:textSize="18sp"/>
+                android:textSize="18sp"
+                android:layout_toRightOf="@+id/soramax" />
 
             <TextView
                 android:id="@+id/hour"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/date"
+                android:layout_alignLeft="@+id/date"
                 android:text="Hour"
                 android:textSize="24sp"/>
 
@@ -84,7 +86,7 @@
                 android:id="@+id/value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/soraave"
+                android:layout_below="@+id/soragraph"
                 android:layout_alignParentRight="true"
                 android:text="TextView"
                 android:textSize="6mm"
@@ -94,7 +96,7 @@
                 android:id="@+id/imageWS"
                 android:layout_width="32sp"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/soraave"
+                android:layout_below="@+id/soragraph"
                 android:layout_alignParentRight="true"
                 android:src="@mipmap/ic_launcher_wd"/>
     </RelativeLayout>
