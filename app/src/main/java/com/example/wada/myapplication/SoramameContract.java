@@ -15,6 +15,8 @@ public final class SoramameContract {
     // 緯度経度をどうするか？
     public static abstract class FeedEntry implements BaseColumns {
         public static final String TABLE_NAME = "soramamestation";
+        public static final String DATA_TABLE_NAME = "soramamedata";
+
         public static final String COLUMN_NAME_STATION = "stationname";
         public static final String COLUMN_NAME_CODE = "stationcode";
         public static final String COLUMN_NAME_ADDRESS = "stationaddress";
@@ -24,7 +26,10 @@ public final class SoramameContract {
         public static final String COLUMN_NAME_OX = "OX";
         public static final String COLUMN_NAME_PM25 = "PM25";
         public static final String COLUMN_NAME_WD = "WD";
+        public static final String COLUMN_NAME_WS = "WS";
         public static final String COLUMN_NAME_SEL = "selected";
         public static final String COLUMN_NAME_IND = "selno";
+
+        public static final String COLUMN_NAME_DATE = "date";
     }
 }

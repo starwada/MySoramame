@@ -14,6 +14,7 @@ public class SoramameSQLHelper  extends SQLiteOpenHelper{
 
     private static final String TEXT_TYPE = " TEXT";
     private static final String COMMA_SEP = ",";
+    // 測定局保持テーブル
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + SoramameContract.FeedEntry.TABLE_NAME + " (" +
                     SoramameContract.FeedEntry._ID + " INTEGER PRIMARY KEY," +
@@ -33,6 +34,22 @@ public class SoramameSQLHelper  extends SQLiteOpenHelper{
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + SoramameContract.FeedEntry.TABLE_NAME;
 
+    // 測定局データ保持テーブル
+    // 日付データは西暦 月 日 時間：2016 6 29 14のようにスペース区切りとする。
+    private static final String SQL_CREATE_DATA_ENTRIES =
+            "CREATE TABLE " + SoramameContract.FeedEntry.DATA_TABLE_NAME + " (" +
+                    SoramameContract.FeedEntry._ID + " INTEGER PRIMARY KEY," +
+                    SoramameContract.FeedEntry.COLUMN_NAME_CODE + " INTEGER" + COMMA_SEP +
+                    SoramameContract.FeedEntry.COLUMN_NAME_DATE + TEXT_TYPE + COMMA_SEP +
+                    SoramameContract.FeedEntry.COLUMN_NAME_OX + " REAL" + COMMA_SEP +
+                    SoramameContract.FeedEntry.COLUMN_NAME_PM25 + " REAL" + COMMA_SEP +
+                    SoramameContract.FeedEntry.COLUMN_NAME_WD + " INTEGER" + COMMA_SEP +
+                    SoramameContract.FeedEntry.COLUMN_NAME_WS + " REAL" +
+                    " )";
+
+    private static final String SQL_DELETE_DATA_ENTRIES =
+            "DROP TABLE IF EXISTS " + SoramameContract.FeedEntry.DATA_TABLE_NAME;
+
     public SoramameSQLHelper(Context context)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -41,6 +58,7 @@ public class SoramameSQLHelper  extends SQLiteOpenHelper{
     public void onCreate(SQLiteDatabase db)
     {
         db.execSQL(SQL_CREATE_ENTRIES);
+        db.execSQL(SQL_CREATE_DATA_ENTRIES);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
@@ -48,6 +66,7 @@ public class SoramameSQLHelper  extends SQLiteOpenHelper{
         // This database is only a cache for online data, so its upgrade policy is
         // to simply to discard the data and start over
         db.execSQL(SQL_DELETE_ENTRIES);
+        db.execSQL(SQL_DELETE_DATA_ENTRIES);
         onCreate(db);
     }
 }

@@ -257,6 +257,14 @@ public class Soramame implements Parcelable{
         addData(data);
     }
 
+    public void setData(String strDate, String strOX, String strPM25, String strWD, String strWS)
+    {
+        String strSplit[] = strDate.split( " " );
+        if(strSplit.length > 3) {
+            setData(strSplit[0], strSplit[1], strSplit[2], strSplit[3], strOX, strPM25, strWD, strWS);
+        }
+    }
+
     public void setData(SoramameData orig){
         SoramameData data = new SoramameData(orig.getDate(), orig.getOX(), orig.getPM25(), orig.getWD(), orig.getWS());
         addData(data);

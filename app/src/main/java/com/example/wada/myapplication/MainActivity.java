@@ -346,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
         return rc;
     }
 
-    //
+    // 指定測定局を未選択にする
     private int updateDBAtStation(int code) {
         int rc = 0;
 
@@ -407,8 +407,61 @@ public class MainActivity extends AppCompatActivity {
         return rc;
     }
 
+    // code 測定局コード
+    // 返り値：0    正常終了/1　DBに指定測定局データが無い（サイトからデータを取得する）
+    private int checkDB(Soramame soramame){
+        int rc = 0;
+
+        SoramameSQLHelper mDbHelper = new SoramameSQLHelper(MainActivity.this);
+        try {
+            SQLiteDatabase mDb = mDbHelper.getReadableDatabase();
+            if (!mDb.isOpen()) {
+                return -1;
+            }
+            String strWhereArg[] = {String.valueOf(soramame.getMstCode())};
+            //
+            Cursor c = mDb.query(SoramameContract.FeedEntry.DATA_TABLE_NAME, null,
+                    SoramameContract.FeedEntry.COLUMN_NAME_CODE + " = ?", strWhereArg, null, null, null);
+            if (c.getCount() > 0) {
+                soramame.clearData();
+
+                if (c.moveToFirst()) {
+                    while (true) {
+                        soramame.setData(
+                                c.getString(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_DATE)),
+                                c.getString(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_OX)),
+                                c.getString(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_PM25)),
+                                c.getString(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_WD)),
+                                c.getString(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_WS))
+                        );
+
+                        if (!c.moveToNext()) {
+                            break;
+                        }
+                    }
+                }
+            }
+            else{
+                // DBにデータが無い
+                rc = 1;
+            }
+            c.close();
+            mDb.close();
+        } catch (SQLiteException e) {
+            e.printStackTrace();
+        }
+
+        return rc;
+    }
+
     // これを呼ばれる前にmListが空になることを想定した作りとなっている。
     // 空でなければ、新規データのみ取得するように修正する。
+    // 計測データをDBに保持するようにしてみる。どの程度のサイズ等になるか。
+    // mListは表示アダプター用に必要。
+    // 頻繁にサイトにはアクセスしたくない。
+    // まず、mList内に計測データがあるか確認。基本０でなければ、使えると判断できるはず。
+    // 無ければ、DBを確認、それでも無ければ、サイトから取得する。
+    // DBにはどの程度保持するか決めないといけない。これは、設定値とするか。保持日数。
     private class SoraDesc extends AsyncTask<Void, Void, Void> {
         ProgressDialog mProgressDialog;
         int count = 0;
@@ -425,6 +478,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
+            int rc = 0;
             try {
                 if (mList.isEmpty()) {
                     return null;
@@ -432,12 +486,15 @@ public class MainActivity extends AppCompatActivity {
                 GregorianCalendar now = new GregorianCalendar(Locale.JAPAN);
 
                 for (Soramame soramame : mList) {
-                    // 計測時間との差をみる
+                    // 計測時間との差をみる、データが存在しない場合もfalseとなる。
                     if (soramame.isLoaded(now)) {
                         continue;
                     }
+                    // ここで、指定測定局のデータがDBにあるかチェックする
+                    rc = checkDB(soramame);
+
                     // 現在時間と測定最新時間を比べるともっと早くなる。
-                    // 本来、ここに測定局コードを指定する。
+                    // サイトからデータを取得する際はDBに保持する。その後、DBからmListに設定する。
                     String url = String.format(Locale.ENGLISH, "%s%s%d", SORABASEURL, SORADATAURL, soramame.getMstCode());
                     Document doc = Jsoup.connect(url).get();
                     Elements elements = doc.getElementsByAttributeValue("name", "Hyou");
@@ -447,7 +504,6 @@ public class MainActivity extends AppCompatActivity {
                             url = element.attr("src");
                             m_strMstURL = SORABASEURL + url;
                             // ここでは、測定局のURL解決まで、URLを次のアクティビティに渡す。
-
                             break;
                         }
                     }
