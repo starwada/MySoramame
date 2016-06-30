@@ -318,7 +318,7 @@ public class MainActivity extends AppCompatActivity {
                                 c.getString(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_ADDRESS)));
                         mame.setSelected(1);
                         // 以下はデバッグでインデックスの値を見たいため
-                        mame.setSelIndex(c.getInt(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_IND)));
+                        //mame.setSelIndex(c.getInt(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_IND)));
 
                         // mListを使いまわしするので、重複登録はしない。
                         boolean flag = true;
@@ -407,7 +407,8 @@ public class MainActivity extends AppCompatActivity {
         return rc;
     }
 
-    // code 測定局コード
+    // soramame 測定局データ
+    // db DB
     // 返り値：0    正常終了/1　DBに指定測定局データが無い（サイトからデータを取得する）
     private int checkDB(Soramame soramame, SQLiteDatabase db){
         int rc = 0;
@@ -417,10 +418,11 @@ public class MainActivity extends AppCompatActivity {
                 return -1;
             }
             String strWhereArg[] = {String.valueOf(soramame.getMstCode())};
-            // 日付でソートできればよいが
+            // 日付でソート desc 降順（新しい->古い）
             Cursor c = db.query(SoramameContract.FeedEntry.DATA_TABLE_NAME, null,
                     SoramameContract.FeedEntry.COLUMN_NAME_CODE + " = ?", strWhereArg, null, null,
                     SoramameContract.FeedEntry.COLUMN_NAME_DATE + " desc");
+//            SoramameContract.FeedEntry.COLUMN_NAME_DATE + " asc"); // <- 昇順（古い->新しい）
             if (c.getCount() > 0) {
                 soramame.clearData();
 
@@ -497,8 +499,14 @@ public class MainActivity extends AppCompatActivity {
                         continue;
                     }
                     // ここで、指定測定局のデータがDBにあるかチェックする
+                    // checkDB()内にて、soramame.m_aDataをクリアして、DBからのデータを保持する。
                     rc = checkDB(soramame, mDb);
-                    if(rc != 1){ continue; }
+                    if(rc != 1) {
+                        // DBからデータは取得したが、現在時間とのチェックを行う。
+                        if (soramame.isLoaded(now)) {
+                            continue;
+                        }
+                    }
 
                     // 現在時間と測定最新時間を比べるともっと早くなる。
                     // サイトからデータを取得する際はDBに保持する。その後、DBからmListに設定する。
@@ -523,6 +531,9 @@ public class MainActivity extends AppCompatActivity {
                     // 内部データの先頭要素にて判定する。入力より古いとtrue、同じか新しいとfalse。新しいは無いと思うが。
                     // 新規データをテンポラリ配列に保持しておき、判定でfalseになったら、元データを取り込み、入れ替える。
                     // Collections.copy()
+                    // 注意！そらまめのデータに、ごっそり存在しないような場合もあった。
+                    // ある時間のデータが無い。
+                    Soramame aData = new Soramame();
                     count = 0;
                     for (Element ta : tables) {
                         Elements data = ta.getElementsByTag("td");
@@ -532,7 +543,8 @@ public class MainActivity extends AppCompatActivity {
                         if (soramame.isLoaded(data.get(0).text(), data.get(1).text(), data.get(2).text(), data.get(3).text())) {
                             break;
                         }
-                        soramame.setData(data.get(0).text(), data.get(1).text(), data.get(2).text(), data.get(3).text(),
+                        // このままだと、再ロードした際に、追加データ（新しい）が後に配置される。
+                        aData.setData(data.get(0).text(), data.get(1).text(), data.get(2).text(), data.get(3).text(),
                                 data.get(9).text(), data.get(14).text(), data.get(16).text(), data.get(17).text());
 
                         ContentValues values = new ContentValues();
@@ -540,20 +552,20 @@ public class MainActivity extends AppCompatActivity {
                         values.put(SoramameContract.FeedEntry.COLUMN_NAME_DATE, data.get(0).text() + " " + data.get(1).text() + " " + data.get(2).text() + " " + data.get(3).text());
                         values.put(SoramameContract.FeedEntry.COLUMN_NAME_OX, Soramame.getValue(data.get(9).text(), -0.1f));
                         values.put(SoramameContract.FeedEntry.COLUMN_NAME_PM25, Soramame.getValue(data.get(14).text(), -100));
-                        values.put(SoramameContract.FeedEntry.COLUMN_NAME_WD, Soramame.parseWD(data.get(16).text()));
+                        values.put(SoramameContract.FeedEntry.COLUMN_NAME_WD, data.get(16).text());
                         values.put(SoramameContract.FeedEntry.COLUMN_NAME_WS, Soramame.getValue(data.get(17).text(), -0.1f));
                         // 重複は追加しない
                         long newRowId = mDb.insertWithOnConflict(SoramameContract.FeedEntry.DATA_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
                         count++;
                     }
                     // countにて新しいデータが無い場合はスルー
-//                    if (count > 0) {
-//                        if (soramame.getSize() > 0) {
-//                            aData.addAll(aData.getSize(), soramame.getData());
-//                            soramame.getData().clear();
-//                        }
-//                        soramame.addAll(0, aData.getData());
-//                    }
+                    if (count > 0) {
+                        if (soramame.getSize() > 0) {
+                            aData.addAll(aData.getSize(), soramame.getData());
+                            soramame.getData().clear();
+                        }
+                        soramame.addAll(0, aData.getData());
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();

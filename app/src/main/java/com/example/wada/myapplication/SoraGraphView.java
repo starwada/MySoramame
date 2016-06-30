@@ -458,8 +458,10 @@ public class SoraGraphView extends View {
                     mHourPath.moveTo(x, paddingTop);
                     mHourPath.lineTo(x, contentHeight + paddingTop);
                     canvas.drawPath(mHourPath, mHourLine);
-                    canvas.drawText(String.format("%d", data.getDate().get(Calendar.HOUR_OF_DAY)),
-                            x - mHourTextWidth[nHour++]/2, paddingTop + mTextHeight, mTextPaint);
+                    if(nHour < 4) {
+                        canvas.drawText(String.format("%d", data.getDate().get(Calendar.HOUR_OF_DAY)),
+                                x - mHourTextWidth[nHour++] / 2, paddingTop + mTextHeight, mTextPaint);
+                    }
                 }
                 if( data.getDate().get(Calendar.HOUR_OF_DAY) == 1 ){
                     // 日付描画
