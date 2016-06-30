@@ -21,11 +21,11 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.SEND" />-->
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-                <!--<data android:mimeType="image/*" />-->
-            <!--</intent-filter>-->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.SEND" /> -->
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- <data android:mimeType="image/*" /> -->
+            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name=".SelectStationActivity"
@@ -37,11 +37,16 @@
         </activity>
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings"></activity><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
-     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
+            android:label="@string/title_activity_settings" />
+        <!--
+ ATTENTION: This was auto-generated to add Google Play services to your project for
+     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.
+        -->
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
+        <activity android:name=".HelpActivity"></activity>
     </application>
 
 </manifest>

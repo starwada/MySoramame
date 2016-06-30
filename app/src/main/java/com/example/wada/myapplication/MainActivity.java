@@ -128,6 +128,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
             // 操作説明
             case R.id.menu_help:
+                Intent intent = new Intent(MainActivity.this, HelpActivity.class);
+                startActivity(intent);
                 break;
         }
         return super.onOptionsItemSelected(item);
