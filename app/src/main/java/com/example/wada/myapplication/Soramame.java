@@ -103,6 +103,19 @@ public class Soramame implements Parcelable{
 
         SoramameData(String strYear, String strMonth, String strDay, String strHour, String strOX, String strPM25, String strWD, String strWS)
         {
+            setData(strYear, strMonth, strDay, strHour, strOX, strPM25, strWD, strWS);
+        }
+
+        SoramameData(GregorianCalendar date, float fOX, Integer nPM25, Integer nWD, float fWS){
+            //m_dDate = new GregorianCalendar(date.get(Calendar.YEAR), date.get(Calendar.MONTH), date.get(Calendar.DAY_OF_MONTH), date.get(Calendar.HOUR_OF_DAY), 0, 0);
+            m_dDate = date ;
+            m_fOX = fOX;
+            m_nPM25 = nPM25;
+            m_nWD = nWD;
+            m_fWS = fWS;
+        }
+
+        public void setData(String strYear, String strMonth, String strDay, String strHour, String strOX, String strPM25, String strWD, String strWS){
             // 月は０から11で表現する。取得時も。
             m_dDate = new GregorianCalendar(Integer.valueOf(strYear), Integer.valueOf(strMonth)-1,
                     Integer.valueOf(strDay), Integer.valueOf(strHour), 0);
@@ -124,15 +137,6 @@ public class Soramame implements Parcelable{
             catch(NumberFormatException e){
                 e.printStackTrace();
             }
-        }
-
-        SoramameData(GregorianCalendar date, float fOX, Integer nPM25, Integer nWD, float fWS){
-            //m_dDate = new GregorianCalendar(date.get(Calendar.YEAR), date.get(Calendar.MONTH), date.get(Calendar.DAY_OF_MONTH), date.get(Calendar.HOUR_OF_DAY), 0, 0);
-            m_dDate = date ;
-            m_fOX = fOX;
-            m_nPM25 = nPM25;
-            m_nWD = nWD;
-            m_fWS = fWS;
         }
 
         public GregorianCalendar getDate()
@@ -402,7 +406,7 @@ public class Soramame implements Parcelable{
 
     // 風向文字列->インデックス変換
     // 静穏 0/北 1/北北東 2/北東 3 -> 北北西 16
-    public Integer parseWD(String strWD){
+    static public Integer parseWD(String strWD){
         Integer nWD = -1;
         int start = 0;
         do {
@@ -465,7 +469,7 @@ public class Soramame implements Parcelable{
         return nWD;
     }
 
-    public Integer getValue(String strValue, Integer p){
+    static public Integer getValue(String strValue, Integer p){
         Integer value;
         value = p;
         try{
@@ -476,7 +480,7 @@ public class Soramame implements Parcelable{
         }
         return value;
     }
-    public Float getValue(String strValue, Float p){
+    static public Float getValue(String strValue, Float p){
         Float value;
         value = p;
         try{

@@ -42,7 +42,7 @@ public class SoramameSQLHelper  extends SQLiteOpenHelper{
                     SoramameContract.FeedEntry.COLUMN_NAME_CODE + " INTEGER" + COMMA_SEP +
                     SoramameContract.FeedEntry.COLUMN_NAME_DATE + TEXT_TYPE + COMMA_SEP +
                     SoramameContract.FeedEntry.COLUMN_NAME_OX + " REAL" + COMMA_SEP +
-                    SoramameContract.FeedEntry.COLUMN_NAME_PM25 + " REAL" + COMMA_SEP +
+                    SoramameContract.FeedEntry.COLUMN_NAME_PM25 + " INTEGER" + COMMA_SEP +
                     SoramameContract.FeedEntry.COLUMN_NAME_WD + " INTEGER" + COMMA_SEP +
                     SoramameContract.FeedEntry.COLUMN_NAME_WS + " REAL" +
                     " )";

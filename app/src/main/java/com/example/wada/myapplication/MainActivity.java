@@ -409,19 +409,18 @@ public class MainActivity extends AppCompatActivity {
 
     // code 測定局コード
     // 返り値：0    正常終了/1　DBに指定測定局データが無い（サイトからデータを取得する）
-    private int checkDB(Soramame soramame){
+    private int checkDB(Soramame soramame, SQLiteDatabase db){
         int rc = 0;
 
-        SoramameSQLHelper mDbHelper = new SoramameSQLHelper(MainActivity.this);
         try {
-            SQLiteDatabase mDb = mDbHelper.getReadableDatabase();
-            if (!mDb.isOpen()) {
+            if (!db.isOpen()) {
                 return -1;
             }
             String strWhereArg[] = {String.valueOf(soramame.getMstCode())};
-            //
-            Cursor c = mDb.query(SoramameContract.FeedEntry.DATA_TABLE_NAME, null,
-                    SoramameContract.FeedEntry.COLUMN_NAME_CODE + " = ?", strWhereArg, null, null, null);
+            // 日付でソートできればよいが
+            Cursor c = db.query(SoramameContract.FeedEntry.DATA_TABLE_NAME, null,
+                    SoramameContract.FeedEntry.COLUMN_NAME_CODE + " = ?", strWhereArg, null, null,
+                    SoramameContract.FeedEntry.COLUMN_NAME_DATE + " desc");
             if (c.getCount() > 0) {
                 soramame.clearData();
 
@@ -446,7 +445,6 @@ public class MainActivity extends AppCompatActivity {
                 rc = 1;
             }
             c.close();
-            mDb.close();
         } catch (SQLiteException e) {
             e.printStackTrace();
         }
@@ -465,6 +463,9 @@ public class MainActivity extends AppCompatActivity {
     private class SoraDesc extends AsyncTask<Void, Void, Void> {
         ProgressDialog mProgressDialog;
         int count = 0;
+
+        SoramameSQLHelper mDbHelper = new SoramameSQLHelper(MainActivity.this);
+        SQLiteDatabase mDb = null;
 
         @Override
         protected void onPreExecute() {
@@ -485,13 +486,19 @@ public class MainActivity extends AppCompatActivity {
                 }
                 GregorianCalendar now = new GregorianCalendar(Locale.JAPAN);
 
+                mDb = mDbHelper.getWritableDatabase();
+                if(!mDb.isOpen()){
+                    return null;
+                }
                 for (Soramame soramame : mList) {
                     // 計測時間との差をみる、データが存在しない場合もfalseとなる。
+                    // 内部データ（mList）が有効な場合は不要なDBアクセスもしない。
                     if (soramame.isLoaded(now)) {
                         continue;
                     }
                     // ここで、指定測定局のデータがDBにあるかチェックする
-                    rc = checkDB(soramame);
+                    rc = checkDB(soramame, mDb);
+                    if(rc != 1){ continue; }
 
                     // 現在時間と測定最新時間を比べるともっと早くなる。
                     // サイトからデータを取得する際はDBに保持する。その後、DBからmListに設定する。
@@ -517,7 +524,6 @@ public class MainActivity extends AppCompatActivity {
                     // 新規データをテンポラリ配列に保持しておき、判定でfalseになったら、元データを取り込み、入れ替える。
                     // Collections.copy()
                     count = 0;
-                    Soramame aData = new Soramame();
                     for (Element ta : tables) {
                         Elements data = ta.getElementsByTag("td");
                         // 0 西暦/1 月/2 日/3 時間
@@ -526,21 +532,33 @@ public class MainActivity extends AppCompatActivity {
                         if (soramame.isLoaded(data.get(0).text(), data.get(1).text(), data.get(2).text(), data.get(3).text())) {
                             break;
                         }
-                        aData.setData(data.get(0).text(), data.get(1).text(), data.get(2).text(), data.get(3).text(),
+                        soramame.setData(data.get(0).text(), data.get(1).text(), data.get(2).text(), data.get(3).text(),
                                 data.get(9).text(), data.get(14).text(), data.get(16).text(), data.get(17).text());
+
+                        ContentValues values = new ContentValues();
+                        values.put(SoramameContract.FeedEntry.COLUMN_NAME_CODE, soramame.getMstCode());
+                        values.put(SoramameContract.FeedEntry.COLUMN_NAME_DATE, data.get(0).text() + " " + data.get(1).text() + " " + data.get(2).text() + " " + data.get(3).text());
+                        values.put(SoramameContract.FeedEntry.COLUMN_NAME_OX, Soramame.getValue(data.get(9).text(), -0.1f));
+                        values.put(SoramameContract.FeedEntry.COLUMN_NAME_PM25, Soramame.getValue(data.get(14).text(), -100));
+                        values.put(SoramameContract.FeedEntry.COLUMN_NAME_WD, Soramame.parseWD(data.get(16).text()));
+                        values.put(SoramameContract.FeedEntry.COLUMN_NAME_WS, Soramame.getValue(data.get(17).text(), -0.1f));
+                        // 重複は追加しない
+                        long newRowId = mDb.insertWithOnConflict(SoramameContract.FeedEntry.DATA_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
                         count++;
                     }
                     // countにて新しいデータが無い場合はスルー
-                    if (count > 0) {
-                        if (soramame.getSize() > 0) {
-                            aData.addAll(aData.getSize(), soramame.getData());
-                            soramame.getData().clear();
-                        }
-                        soramame.addAll(0, aData.getData());
-                    }
+//                    if (count > 0) {
+//                        if (soramame.getSize() > 0) {
+//                            aData.addAll(aData.getSize(), soramame.getData());
+//                            soramame.getData().clear();
+//                        }
+//                        soramame.addAll(0, aData.getData());
+//                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            }finally {
+                mDb.close();
             }
             return null;
         }
