@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private static ArrayList<Soramame> mList;   // 測定局別計測データ
 
     int mCurrentType = 0;       // 表示データ種別スピナー
-    int mCurrentDay = 3;        // 表示日数スピナー
+    int mCurrentDay = 3;        // 表示日数スピナー 値は表示日数、１から７、０は最大と判断。
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
             Spinner mDay = (Spinner) findViewById(R.id.spinnerDay);
             if (mDay != null) {
                 mDay.setAdapter(day);
-                mDay.setSelection(mCurrentDay - 1);
+                mDay.setSelection(mCurrentDay == 0 ? 7 : mCurrentDay - 1);
             }
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -392,7 +392,6 @@ public class MainActivity extends AppCompatActivity {
             int nIndex = 0;
             for (Soramame data : mList) {
                 if (data.isSelected()) {
-                    // 消すんじゃ無かった、フラグを未選択にするだけ。
                     String strWhereCause;
                     ContentValues values = new ContentValues();
                     strWhereCause = SoramameContract.FeedEntry.COLUMN_NAME_CODE + " = ?";
@@ -586,7 +585,7 @@ public class MainActivity extends AppCompatActivity {
                 if (mAdapter != null) {
                     mAdapter = null;
                 }
-                mAdapter = new GraphViewAdapter(MainActivity.this, mList, mCurrentType, mCurrentDay == 0 ? 8 : mCurrentDay - 1);
+                mAdapter = new GraphViewAdapter(MainActivity.this, mList, mCurrentType, mCurrentDay == 0 ? 7 : mCurrentDay - 1);
 
                 mLayoutManager = new LinearLayoutManager(MainActivity.this);
                 mRecyclerView.setLayoutManager(mLayoutManager);

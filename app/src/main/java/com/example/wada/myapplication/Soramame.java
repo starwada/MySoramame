@@ -353,7 +353,7 @@ public class Soramame implements Parcelable{
         if(getSize() < 1){ return false; }
 
         GregorianCalendar cal = new GregorianCalendar();
-        cal.set(Integer.valueOf(strYear), Integer.valueOf(strMon), Integer.valueOf(strDay), Integer.valueOf(strHour), 0);
+        cal.set(Integer.valueOf(strYear), Integer.valueOf(strMon)-1, Integer.valueOf(strDay), Integer.valueOf(strHour), 0);
 
         return isLoaded(cal);
     }
