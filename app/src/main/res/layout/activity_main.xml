@@ -50,6 +50,14 @@
         android:layout_toRightOf="@+id/dispday"
         android:layout_below="@+id/toolbar" />
 
+    <TextView
+        android:id="@+id/db_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="db_size"
+        android:layout_below="@+id/toolbar"
+        android:layout_toRightOf="@+id/spinnerDay"/>
+
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/refresh"
         android:layout_below="@+id/spinner2"

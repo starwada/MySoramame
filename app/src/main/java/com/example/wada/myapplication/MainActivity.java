@@ -16,6 +16,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,6 +29,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -177,6 +179,13 @@ public class MainActivity extends AppCompatActivity {
             new SoraDesc().execute();
         }
 
+    }
+
+    // DBファイルサイズ表示（デバッグ用）
+    private void dispdbsize(long size){
+        float fsize = (float)size/1024f;
+        TextView db_size = (TextView)findViewById(R.id.db_size);
+        db_size.setText(String.format("%.0f KB", fsize));
     }
 
     // Intentは複数設定してもOKのようだ
@@ -640,6 +649,9 @@ public class MainActivity extends AppCompatActivity {
                         });
                 itemDecor.attachToRecyclerView(mRecyclerView);
             }
+
+            // DBサイズ
+            dispdbsize(mDbHelper.getSize());
 
             mProgressDialog.dismiss();
         }

@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Created by Wada on 2016/06/03.
  */
 public class SoramameSQLHelper  extends SQLiteOpenHelper{
+    private final Context mContext;
     // If you change the database schema, you must increment the database version.
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "SoramameSQL.db";
@@ -53,6 +54,7 @@ public class SoramameSQLHelper  extends SQLiteOpenHelper{
     public SoramameSQLHelper(Context context)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        mContext = context;
     }
 
     public void onCreate(SQLiteDatabase db)
@@ -68,5 +70,9 @@ public class SoramameSQLHelper  extends SQLiteOpenHelper{
         db.execSQL(SQL_DELETE_ENTRIES);
         db.execSQL(SQL_DELETE_DATA_ENTRIES);
         onCreate(db);
+    }
+
+    public long getSize(){
+        return mContext.getDatabasePath(DATABASE_NAME).length();
     }
 }
