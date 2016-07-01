@@ -348,19 +348,21 @@ public class Soramame implements Parcelable{
     // 内部データがすでに読み込まれているかを判定する。
     // 内部データが空ならfalse
     // 内部データの先頭要素にて判定する。
-    public boolean isLoaded(String strYear, String strMon, String strDay, String strHour){
+    // nMinute  判定間隔（分）
+    public boolean isLoaded(String strYear, String strMon, String strDay, String strHour, int nMinute){
         // 要素が無ければfalse
         if(getSize() < 1){ return false; }
 
         GregorianCalendar cal = new GregorianCalendar();
         cal.set(Integer.valueOf(strYear), Integer.valueOf(strMon)-1, Integer.valueOf(strDay), Integer.valueOf(strHour), 0);
 
-        return isLoaded(cal);
+        return isLoaded(cal, nMinute);
     }
 
-    public boolean isLoaded(GregorianCalendar cal){
+    // nMinute  判定間隔（分）
+    public boolean isLoaded(GregorianCalendar cal, int nMinute){
         boolean loaded = false;
-        if(m_aData == null){ return false; }
+        if(m_aData == null || nMinute < 0){ return false; }
 
 //        if( m_aData.get(0).getDate().before(cal) ){ loaded = true; }
 
@@ -369,7 +371,7 @@ public class Soramame implements Parcelable{
         long gap = cal.getTimeInMillis() - m_aData.get(0).getDate().getTimeInMillis();
         // ２時間半を目安とする。
         // 更新のタイミングは計測時間の１時間半後くらいなので、前の計測時間からは２時間半となる。
-        if(gap / (60*1000) < 150){ loaded = true; }
+        if(gap / (60*1000) < nMinute){ loaded = true; }
 
         return loaded;
     }

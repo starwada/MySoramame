@@ -76,9 +76,9 @@ public class GraphViewAdapter extends RecyclerView.Adapter<GraphViewAdapter.View
         holder.soragraph.setDispDay(mDay);
         holder.soramax.setText(holder.soragraph.getMaxString());
         holder.soraave.setText(holder.soragraph.getAveString());
-        holder.stationname.setText(data.getMstName());
+        //holder.stationname.setText(data.getMstName());
         // 以下はリストのインデックス確認のデバッグ用
-//        holder.stationname.setText(data.getMstName() + ":" + String.valueOf(data.getSelIndex()));
+        holder.stationname.setText(data.getMstName() + ":" + String.valueOf(data.getSelIndex()));
 
         // 測定局名のロングタップでマップ起動（あれば）
         holder.stationname.setOnLongClickListener(new View.OnLongClickListener(){

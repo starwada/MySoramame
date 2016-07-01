@@ -155,8 +155,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        // 表示測定局をDBに保持
-        updateDBIndex();
         // スピナーのインデックスを保持
         SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
@@ -171,6 +169,8 @@ public class MainActivity extends AppCompatActivity {
     private void updateData() {
         // DBから選択された測定局を取得し、そのデータを問い合わせる
         getSelectedStation();
+        // 表示測定局をDBに保持
+        updateDBIndex();
 
         // 表示する測定局がたくさんあるとここで時間がかかる
         if (mList != null) {
@@ -320,11 +320,12 @@ public class MainActivity extends AppCompatActivity {
                                 c.getString(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_ADDRESS)));
                         mame.setSelected(1);
                         // 以下はデバッグでインデックスの値を見たいため
-                        //mame.setSelIndex(c.getInt(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_IND)));
+                        mame.setSelIndex(c.getInt(c.getColumnIndexOrThrow(SoramameContract.FeedEntry.COLUMN_NAME_IND)));
 
                         // mListを使いまわしするので、重複登録はしない。
                         boolean flag = true;
                         for (Soramame ent : mList) {
+                            ent.setSelected(1);
                             if (ent.getMstCode().equals(mame.getMstCode())) {
                                 flag = false;
                                 break;
@@ -392,6 +393,7 @@ public class MainActivity extends AppCompatActivity {
             int nIndex = 0;
             for (Soramame data : mList) {
                 if (data.isSelected()) {
+                    data.setSelIndex(nIndex);
                     String strWhereCause;
                     ContentValues values = new ContentValues();
                     strWhereCause = SoramameContract.FeedEntry.COLUMN_NAME_CODE + " = ?";
@@ -496,7 +498,8 @@ public class MainActivity extends AppCompatActivity {
                 for (Soramame soramame : mList) {
                     // 計測時間との差をみる、データが存在しない場合もfalseとなる。
                     // 内部データ（mList）が有効な場合は不要なDBアクセスもしない。
-                    if (soramame.isLoaded(now)) {
+                    // 次の更新まで9０分程度と想定、比較先は１時間前のデータなので、トータルで１５０分と設定する。
+                    if (soramame.isLoaded(now, 150)) {
                         continue;
                     }
                     // ここで、指定測定局のデータがDBにあるかチェックする
@@ -504,7 +507,7 @@ public class MainActivity extends AppCompatActivity {
                     rc = checkDB(soramame, mDb);
                     if(rc != 1) {
                         // DBからデータは取得したが、現在時間とのチェックを行う。
-                        if (soramame.isLoaded(now)) {
+                        if (soramame.isLoaded(now, 150)) {
                             continue;
                         }
                     }
@@ -541,7 +544,7 @@ public class MainActivity extends AppCompatActivity {
                         // 0 西暦/1 月/2 日/3 時間
                         // 4 SO2/5 NO/6 NO2/7 NOX/8 CO/9 OX/10 NMHC/11 CH4/12 THC/13 SPM/14 PM2.5/15 SP/16 WD/17 WS
 
-                        if (soramame.isLoaded(data.get(0).text(), data.get(1).text(), data.get(2).text(), data.get(3).text())) {
+                        if (soramame.isLoaded(data.get(0).text(), data.get(1).text(), data.get(2).text(), data.get(3).text(), 60)) {
                             break;
                         }
                         // このままだと、再ロードした際に、追加データ（新しい）が後に配置される。
