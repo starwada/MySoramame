@@ -31,6 +31,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -67,6 +71,11 @@ public class MainActivity extends AppCompatActivity {
 
     int mCurrentType = 0;       // 表示データ種別スピナー
     int mCurrentDay = 3;        // 表示日数スピナー 値は表示日数、１から７、０は最大と判断。
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +101,9 @@ public class MainActivity extends AppCompatActivity {
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     //swipeでリフレッシュした時の通信処理とグルグルを止める設定を書く
@@ -143,6 +155,22 @@ public class MainActivity extends AppCompatActivity {
         updateData();
 
         super.onStart();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app URL is correct.
+                Uri.parse("android-app://com.example.wada.myapplication/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
     }
 
     @Override
@@ -182,10 +210,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // DBファイルサイズ表示（デバッグ用）
-    private void dispdbsize(long size){
-        float fsize = (float)size/1024f;
-        TextView db_size = (TextView)findViewById(R.id.db_size);
-        db_size.setText(String.format("%.0f KB", fsize));
+    private void dispdbsize(long size) {
+        float fsize = (float) size / 1024f;
+        String strSpec = getString(R.string.spec_KB);
+        if(fsize > 900f){
+            strSpec = getString(R.string.spec_MB);
+            fsize /= 1024f;
+        }
+
+        TextView db_size = (TextView) findViewById(R.id.db_size);
+        db_size.setText(String.format("%.0f %s", fsize, strSpec));
     }
 
     // Intentは複数設定してもOKのようだ
@@ -422,7 +456,7 @@ public class MainActivity extends AppCompatActivity {
     // soramame 測定局データ
     // db DB
     // 返り値：0    正常終了/1　DBに指定測定局データが無い（サイトからデータを取得する）
-    private int checkDB(Soramame soramame, SQLiteDatabase db){
+    private int checkDB(Soramame soramame, SQLiteDatabase db) {
         int rc = 0;
 
         try {
@@ -453,8 +487,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }
-            }
-            else{
+            } else {
                 // DBにデータが無い
                 rc = 1;
             }
@@ -501,7 +534,7 @@ public class MainActivity extends AppCompatActivity {
                 GregorianCalendar now = new GregorianCalendar(Locale.JAPAN);
 
                 mDb = mDbHelper.getWritableDatabase();
-                if(!mDb.isOpen()){
+                if (!mDb.isOpen()) {
                     return null;
                 }
                 for (Soramame soramame : mList) {
@@ -514,7 +547,7 @@ public class MainActivity extends AppCompatActivity {
                     // ここで、指定測定局のデータがDBにあるかチェックする
                     // checkDB()内にて、soramame.m_aDataをクリアして、DBからのデータを保持する。
                     rc = checkDB(soramame, mDb);
-                    if(rc != 1) {
+                    if (rc != 1) {
                         // DBからデータは取得したが、現在時間とのチェックを行う。
                         if (soramame.isLoaded(now, 150)) {
                             continue;
@@ -582,7 +615,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-            }finally {
+            } finally {
                 mDb.close();
             }
             return null;

@@ -56,7 +56,7 @@
         android:layout_height="wrap_content"
         android:text="db_size"
         android:layout_below="@+id/toolbar"
-        android:layout_toRightOf="@+id/spinnerDay"/>
+        android:layout_toEndOf="@+id/spinnerDay"/>
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/refresh"
