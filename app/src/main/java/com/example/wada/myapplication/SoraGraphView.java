@@ -224,7 +224,7 @@ public class SoraGraphView extends View {
     // 最大値
     public String getMaxString(){
         ArrayList<Soramame.SoramameData> list = mSoramame.getData();
-        return String.format(Locale.JAPANESE, "最高値：%s (%s)", getSpecString(mMax), list.get(mMaxTime[mMode]).getCalendarString());
+        return String.format(Locale.JAPANESE, "最高値：%s \n(%s)", getSpecString(mMax), list.get(mMaxTime[mMode]).getCalendarString());
     }
 
     // 平均値
@@ -281,6 +281,13 @@ public class SoraGraphView extends View {
         Bitmap cache = getDrawingCache();
         Bitmap screenShot = Bitmap.createBitmap(cache);
         setDrawingCacheEnabled(false);
+
+        Paint textpaint = new Paint();
+        textpaint.setColor(Color.argb(75, 0, 0, 255));
+        textpaint.setTextSize(24.0f);
+        Canvas canvas = new Canvas(screenShot);
+        canvas.drawText(String.format("%s", mSoramame.getMstName()), 0, 20, textpaint);
+
         // 読み書きするファイル名を指定
         File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/capture.jpeg");
         // 指定したファイル名が無ければ作成する。

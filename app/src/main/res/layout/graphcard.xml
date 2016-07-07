@@ -55,7 +55,8 @@
                 android:id="@+id/soramax"
                 android:layout_below="@+id/soragraph"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:singleLine="false" />
 
             <TextView
                 android:text="24時間平均値"
